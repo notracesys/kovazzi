@@ -349,44 +349,65 @@ Descrição do ocorrido:
               <div>
                   <div className="flex items-center gap-2">
                       <h2 className="font-bold">Equipe DesbanX</h2>
+                      <div className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </div>
                   </div>
                   <p className="text-xs text-muted-foreground">Online</p>
               </div>
           </div>
 
-          <div className="flex-grow p-4 overflow-y-auto bg-background/50">
-              <div className="space-y-4 max-w-4xl mx-auto">
-                  {messages.map((msg) => {
+          <div className="flex-grow p-4 overflow-y-auto bg-muted/20">
+              <div className="space-y-6 max-w-4xl mx-auto">
+                  {messages.map((msg, index) => {
                       if (msg.type === 'feedback') {
                         return (
                             <div key={msg.id} className="max-w-xs mx-auto pt-4 space-y-4 animate-in fade-in-50 duration-500">
-                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={400} height={800} className="rounded-lg object-contain" />
-                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={400} height={800} className="rounded-lg object-contain" />
+                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={400} height={800} className="rounded-lg object-contain shadow-lg" />
+                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={400} height={800} className="rounded-lg object-contain shadow-lg" />
                             </div>
                         )
                       }
+                      const isUser = msg.sender === 'user';
+                      const isTeam = msg.sender === 'team';
+                      const prevMessage = messages[index - 1];
+                      const nextMessage = messages[index + 1];
+
+                      const roundedCorners = cn({
+                        'rounded-bl-none': isUser && nextMessage?.sender === 'user',
+                        'rounded-br-none': isUser && prevMessage?.sender === 'user',
+                        'rounded-tr-none': isTeam && prevMessage?.sender === 'team',
+                        'rounded-tl-none': isTeam && nextMessage?.sender === 'team',
+                      });
+
                       return (
                       <div
                           key={msg.id}
                           className={cn(
                           'flex items-end gap-2',
-                          msg.sender === 'user' ? 'justify-end' : 'justify-start'
+                          isUser ? 'justify-end' : 'justify-start'
                           )}
                       >
-                          {msg.sender === 'team' && (
-                              <Avatar className="h-8 w-8">
-                                  <AvatarImage src="/equipedesbanx.jpg" alt="Equipe DesbanX Logo" />
-                                  <AvatarFallback>DX</AvatarFallback>
-                              </Avatar>
+                          {isTeam && (
+                            <div className="w-8">
+                              {nextMessage?.sender !== 'team' && (
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src="/equipedesbanx.jpg" alt="Equipe DesbanX Logo" />
+                                    <AvatarFallback>DX</AvatarFallback>
+                                </Avatar>
+                              )}
+                            </div>
                           )}
                           <div
                               className={cn(
-                                'rounded-lg p-3 text-white max-w-[85%] md:max-w-lg',
-                                msg.sender === 'user' ? 'bg-primary' : 'bg-secondary'
+                                'p-3 text-white max-w-[85%] md:max-w-lg shadow-md',
+                                roundedCorners,
+                                isUser ? 'bg-primary rounded-t-xl rounded-bl-xl' : 'bg-secondary rounded-t-xl rounded-br-xl'
                               )}
                               >
                               <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-                              {msg.sender === 'user' && (
+                              {isUser && (
                                 <div className="flex justify-end items-center gap-1 mt-1">
                                     <MessageStatus status={msg.status} />
                                 </div>
