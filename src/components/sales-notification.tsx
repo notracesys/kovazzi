@@ -7,9 +7,21 @@ import { names } from '@/lib/names';
 import { cn } from '@/lib/utils';
 import { Card } from './ui/card';
 
+const timeDescriptions = [
+  'acabou de adquirir o método.',
+  'adquiriu há 2 minutos.',
+  'adquiriu há 5 minutos.',
+  'adquiriu há 10 minutos.',
+  'adquiriu há 15 minutos.',
+  'adquiriu há 23 minutos.',
+  'adquiriu há 42 minutos.',
+  'adquiriu há 1 hora.',
+];
+
 export default function SalesNotification() {
   const [isVisible, setIsVisible] = useState(false);
   const [currentName, setCurrentName] = useState('');
+  const [currentTimeText, setCurrentTimeText] = useState('');
   const pathname = usePathname();
 
   useEffect(() => {
@@ -21,7 +33,9 @@ export default function SalesNotification() {
 
     const showRandomNotification = () => {
       const randomName = names[Math.floor(Math.random() * names.length)];
+      const randomTime = timeDescriptions[Math.floor(Math.random() * timeDescriptions.length)];
       setCurrentName(randomName);
+      setCurrentTimeText(randomTime);
       setIsVisible(true);
 
       timer = setTimeout(() => {
@@ -61,7 +75,7 @@ export default function SalesNotification() {
           </div>
           <div className="text-sm">
             <p className="font-bold text-foreground">{currentName}</p>
-            <p className="text-muted-foreground">acabou de adquirir o método.</p>
+            <p className="text-muted-foreground">{currentTimeText}</p>
           </div>
         </div>
       </Card>
