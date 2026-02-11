@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { CheckCircle } from 'lucide-react';
 import { names } from '@/lib/names';
 import { cn } from '@/lib/utils';
@@ -9,8 +10,13 @@ import { Card } from './ui/card';
 export default function SalesNotification() {
   const [isVisible, setIsVisible] = useState(false);
   const [currentName, setCurrentName] = useState('');
+  const pathname = usePathname();
 
   useEffect(() => {
+    if (pathname === '/chat') {
+      return;
+    }
+
     let timer: NodeJS.Timeout;
 
     const showRandomNotification = () => {
@@ -35,7 +41,11 @@ export default function SalesNotification() {
       clearTimeout(initialTimeout);
       clearInterval(interval);
     };
-  }, []);
+  }, [pathname]);
+
+  if (pathname === '/chat') {
+    return null;
+  }
 
   return (
     <div
