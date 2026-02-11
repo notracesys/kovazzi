@@ -358,7 +358,7 @@ Descrição do ocorrido:
               </div>
           </div>
 
-          <div className="flex-grow p-4 overflow-y-auto bg-muted/20">
+          <div className="flex-grow p-4 overflow-y-auto">
               <div className="space-y-6 max-w-4xl mx-auto">
                   {messages.map((msg, index) => {
                       if (msg.type === 'feedback') {
@@ -394,9 +394,9 @@ Descrição do ocorrido:
                           )}
                           <div
                               className={cn(
-                                'relative p-3 text-white max-w-[85%] md:max-w-lg shadow-md',
+                                'relative p-3 max-w-[85%] md:max-w-lg shadow-md',
                                 // Base styles
-                                isUser ? 'bg-primary rounded-t-xl rounded-bl-xl' : 'bg-secondary rounded-t-xl rounded-br-xl',
+                                isUser ? 'bg-primary text-primary-foreground rounded-t-xl rounded-bl-xl' : 'bg-secondary text-secondary-foreground rounded-t-xl rounded-br-xl',
                                 // Grouping styles for consecutive messages
                                 (isUser && prevMessage?.sender === 'user') && 'rounded-tr-none',
                                 (isUser && nextMessage?.sender === 'user') && 'rounded-bl-none',
