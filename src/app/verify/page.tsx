@@ -106,50 +106,45 @@ export default function VerifyPage() {
 
             <Card className="w-full">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Info className="text-primary"/>
-                    Identificação da Conta
-                </CardTitle>
+                <CardTitle>Identificação da Conta</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleVerify, handleFormError)} className="space-y-2">
+                  <form onSubmit={form.handleSubmit(handleVerify, handleFormError)} className="space-y-4">
                     <FormField
                       control={form.control}
                       name="accountId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-semibold sr-only">ID do jogador</FormLabel>
-                            <div className="flex rounded-md shadow-sm bg-input border border-transparent focus-within:border-primary focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
-                                <div className="pl-3 pr-2 flex items-center pointer-events-none">
-                                    <Info className="w-5 h-5 text-muted-foreground" />
-                                </div>
-                                <FormControl>
-                                <Input 
-                                    placeholder="Insira o ID de jogador aqui" 
-                                    {...field} 
-                                    className="text-base border-0 bg-transparent h-12 flex-1 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                    disabled={isVerified || isVerifying}
-                                />
-                                </FormControl>
-                                <div className="p-1.5">
-                                    <Button 
-                                        type="submit" 
-                                        className={cn(
-                                            "px-6 font-bold w-[120px] h-full",
-                                            isVerified && "bg-green-500 hover:bg-green-600"
-                                        )}
-                                        disabled={isVerifying || isVerified}
-                                    >
-                                    {isVerifying ? (
-                                        <Loader2 className="animate-spin" />
-                                    ) : isVerified ? (
-                                        <ShieldCheck />
-                                    ) : 'Verificar'}
-                                    </Button>
-                                </div>
-                            </div>
-                          <FormMessage className="pt-2 pl-2"/>
+                          <FormLabel className="font-semibold">ID do jogador</FormLabel>
+                          <div className="flex gap-2">
+                            <FormControl>
+                              <Input 
+                                placeholder="Insira o ID de jogador aqui" 
+                                {...field} 
+                                className={cn(
+                                  "text-base", 
+                                  isVerified && "border-green-500"
+                                )} 
+                                disabled={isVerified || isVerifying}
+                              />
+                            </FormControl>
+                            <Button 
+                              type="submit" 
+                              className={cn(
+                                "px-8 font-bold",
+                                isVerified && "bg-green-500 hover:bg-green-600"
+                              )}
+                              disabled={isVerifying || isVerified}
+                            >
+                              {isVerifying ? (
+                                <Loader2 className="animate-spin" />
+                              ) : isVerified ? (
+                                <ShieldCheck />
+                              ) : 'Verificar'}
+                            </Button>
+                          </div>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -159,24 +154,20 @@ export default function VerifyPage() {
             </Card>
 
             {isVerified && (
-              <div className="relative animate-in fade-in-50 slide-in-from-bottom-10 duration-700">
-                 <div className="absolute -inset-px rounded-xl bg-gradient-to-r from-primary/80 to-green-500/80 opacity-75 blur-lg animate-pulse"></div>
-                <Card className="w-full relative">
-                    <CardContent className="p-6 text-center space-y-4">
-                        <div className="inline-block bg-green-500/10 p-3 rounded-full">
-                            <PartyPopper className="w-8 h-8 text-green-400" />
-                        </div>
-                        <h3 className="font-bold text-xl">Conta Verificada!</h3>
-                        <p className="text-muted-foreground">Tudo certo! Sua conta foi identificada. Agora vamos para a análise detalhada do seu caso.</p>
-                        <Button asChild size="lg" className="w-full font-bold mt-4 bg-primary hover:bg-primary/90 text-primary-foreground relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-shine before:bg-gradient-to-r before:from-transparent before:via-white/50 before:to-transparent">
-                        <Link href="/analysis">
-                            Prosseguir para Análise
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                        </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-              </div>
+              <Card className="w-full animate-in fade-in-50 duration-1000">
+                <CardHeader>
+                    <CardTitle>Conta Verificada!</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 text-center">
+                    <p className="text-muted-foreground mb-4">Tudo certo! Agora vamos para a análise detalhada do seu caso.</p>
+                    <Button asChild size="lg" className="font-bold bg-primary hover:bg-primary/90 text-primary-foreground">
+                       <Link href="/analysis">
+                           Prosseguir para Análise
+                           <ArrowRight className="ml-2 h-5 w-5" />
+                       </Link>
+                    </Button>
+                </CardContent>
+              </Card>
             )}
           </div>
         </main>

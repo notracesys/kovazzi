@@ -119,18 +119,12 @@ export default {
             filter: 'blur(3px)',
           },
         },
-        'shine': {
-          'to': {
-            transform: 'translateX(100%)',
-          },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'dialog-show': 'dialog-show 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         'dialog-hide': 'dialog-hide 0.2s ease-in-out',
-        'shine': 'shine 2s linear infinite',
       },
     },
   },
