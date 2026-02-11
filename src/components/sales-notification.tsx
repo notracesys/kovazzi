@@ -24,11 +24,11 @@ export default function SalesNotification() {
     };
 
     // Show the first notification after a delay
-    const initialTimeout = setTimeout(showRandomNotification, 12000);
+    const initialTimeout = setTimeout(showRandomNotification, 8000);
 
     const interval = setInterval(() => {
       showRandomNotification();
-    }, Math.random() * (25000 - 10000) + 10000); // Then every 10-25 seconds
+    }, Math.random() * (10000 - 5000) + 5000); // Then every 5-10 seconds
 
     return () => {
       clearTimeout(timer);
