@@ -5,11 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/header';
-import { Users, Eye, AlertCircle } from 'lucide-react';
+import { Users, Eye, AlertCircle, ShieldAlert, Loader2 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/firebase';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
+// TODO: Replace this with your actual admin User ID (UID) from Firebase Authentication.
+const ADMIN_UID = 'REPLACE_WITH_YOUR_FIREBASE_USER_ID';
 
 const chartConfig = {
   visits: {
@@ -29,6 +34,7 @@ const staticLogsData = [
 ];
 
 export default function AdminPage() {
+  const { user, loading } = useUser();
   const [chartData, setChartData] = useState<any[]>([]);
   const [stats, setStats] = useState({ todayVisits: 0, totalVisits: 0, errorLogs: 0 });
 
@@ -48,6 +54,45 @@ export default function AdminPage() {
       errorLogs: 12,
     });
   }, []);
+  
+  if (loading) {
+    return (
+      <div className="flex min-h-screen w-full flex-col bg-muted/40 dark:bg-background">
+        <Header />
+        <div className="flex flex-1 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || user.uid !== ADMIN_UID) {
+    return (
+      <div className="flex min-h-screen w-full flex-col bg-muted/40 dark:bg-background">
+        <Header />
+        <div className="flex flex-1 items-center justify-center p-4">
+          <Card className="w-full max-w-md text-center">
+            <CardHeader>
+              <CardTitle className="flex flex-col items-center gap-2">
+                <ShieldAlert className="h-12 w-12 text-destructive" />
+                Acesso Negado
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Você não tem permissão para acessar esta página. Por favor, faça login com uma conta de administrador.
+              </p>
+              <Button asChild className="mt-4">
+                <Link href={user ? '/' : '/login'}>
+                  {user ? 'Voltar para o Início' : 'Ir para o Login'}
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 dark:bg-background">
