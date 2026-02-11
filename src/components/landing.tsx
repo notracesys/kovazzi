@@ -25,8 +25,7 @@ export default function Landing() {
   return (
     <div className="animate-in fade-in-50 duration-1000">
       <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight uppercase">
-        Sua conta foi banida?
-        <span className="block">Nem tudo está perdido.</span>
+        Sua conta foi banida? Nem tudo está perdido.
       </h1>
       <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">
         Recuperar sua conta não é uma questão de sorte. É uma questão de saber o que dizer. A maioria fracassa porque fala qualquer coisa, de qualquer jeito. Nós descobrimos o que funciona.
