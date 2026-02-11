@@ -3,19 +3,16 @@
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Mail, Facebook, Twitter, MessageSquare, ArrowRight } from 'lucide-react';
+import { User, Mail, Facebook, Twitter, MessageSquare, ArrowRight, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 const recoveryOptions = [
-    { name: 'Convidado', icon: User, bodyText: 'Perdi o acesso da minha conta de Convidado.', href: null },
-    { name: 'Google', icon: Mail, bodyText: 'Perdi o acesso da minha conta vinculada ao Google.', href: 'https://chk.eduzz.com/39ZQX63Z9E' },
-    { name: 'Facebook', icon: Facebook, bodyText: 'Perdi o acesso da minha conta vinculada ao Facebook.', href: 'https://chk.eduzz.com/60EEXPY303' },
-    { name: 'Twitter', icon: Twitter, bodyText: 'Perdi o acesso da minha conta vinculada ao Twitter.', href: null },
-    { name: 'VK', icon: MessageSquare, bodyText: 'Perdi o acesso da minha conta vinculada ao VK.', href: null },
+    { name: 'Google', icon: Mail, href: 'https://chk.eduzz.com/39ZQX63Z9E' },
+    { name: 'Facebook', icon: Facebook, href: 'https://chk.eduzz.com/60EEXPY303' },
+    { name: 'Convidado', icon: User, href: null },
+    { name: 'Twitter', icon: Twitter, href: null },
+    { name: 'VK', icon: MessageSquare, href: null },
 ];
-
-const email = 'desbanxsuporte@gmail.com';
-const subject = 'Recuperação de Conta - Acesso Perdido';
 
 export default function RecuperarPage() {
 
@@ -35,25 +32,35 @@ export default function RecuperarPage() {
                 <CardHeader>
                     <CardTitle>Qual o meio de vínculo da sua conta?</CardTitle>
                     <CardDescription>
-                        Clique na opção correspondente para iniciar o processo de recuperação. Para contas Google e Facebook, você será levado ao checkout do método. Para as demais, enviará um e-mail para nossa equipe.
+                        Clique na opção correspondente para iniciar o processo de recuperação. Para contas Google e Facebook, você será levado ao checkout do método. As demais opções de vínculo estarão disponíveis em breve.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-4">
                     {recoveryOptions.map((option) => {
-                        const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(option.bodyText)}`;
-                        const finalHref = option.href || mailtoHref;
                         const Icon = option.icon;
-                        const isExternal = !!option.href;
+                        const isAvailable = !!option.href;
 
-                        return (
-                            <Button asChild key={option.name} variant="outline" size="lg" className="justify-start text-base">
-                                <Link href={finalHref} target={isExternal ? "_blank" : undefined}>
+                        if (isAvailable) {
+                            return (
+                                <Button asChild key={option.name} variant="outline" size="lg" className="justify-start text-base">
+                                    <Link href={option.href!} target="_blank">
+                                        <Icon className="mr-3 h-5 w-5" />
+                                        <span>{option.name}</span>
+                                        <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground" />
+                                    </Link>
+                                </Button>
+                            )
+                        } else {
+                            return (
+                                <Button key={option.name} variant="outline" size="lg" className="justify-start text-base" disabled>
                                     <Icon className="mr-3 h-5 w-5" />
                                     <span>{option.name}</span>
-                                    <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground" />
-                                </Link>
-                            </Button>
-                        )
+                                    <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1.5">
+                                        <Clock className="h-3 w-3" /> Em breve
+                                    </span>
+                                </Button>
+                            )
+                        }
                     })}
                 </CardContent>
             </Card>
