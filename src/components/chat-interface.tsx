@@ -365,9 +365,9 @@ Descrição do ocorrido:
                   {messages.map((msg, index) => {
                       if (msg.type === 'feedback') {
                         return (
-                            <div key={msg.id} className="ml-10 pt-2 flex flex-col space-y-4 animate-in fade-in-50 duration-500">
-                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={200} height={400} className="rounded-lg object-contain shadow-md" />
-                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={200} height={400} className="rounded-lg object-contain shadow-md" />
+                            <div key={msg.id} className="ml-10 pt-2 flex flex-col items-start space-y-4 animate-in fade-in-50 duration-500">
+                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={300} height={600} className="rounded-lg object-contain shadow-md" />
+                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={300} height={600} className="rounded-lg object-contain shadow-md" />
                             </div>
                         )
                       }
@@ -463,7 +463,7 @@ Descrição do ocorrido:
                                      before:bg-gradient-to-r
                                      before:from-transparent before:via-white/50 before:to-transparent"
                       >
-                          <Link href="https://chk.eduzz.com/1W3ZA6VQW2" target="_blank">
+                          <Link href="https://chk.eduzz.com/60EEGON303" target="_blank">
                             Quero Recuperar Minha Conta
                             <ArrowRight className="ml-2 h-5 w-5" />
                           </Link>

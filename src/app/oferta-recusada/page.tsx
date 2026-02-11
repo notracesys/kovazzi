@@ -30,7 +30,7 @@ export default function OfertaRecusadaPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                         <Button asChild className="font-bold">
-                           <Link href="https://chk.eduzz.com/1W3ZA6VQW2" target="_blank">
+                           <Link href="https://chk.eduzz.com/60EEGON303" target="_blank">
                                 Me Arrependi, quero recuperar!
                                <ArrowRight className="ml-2 h-5 w-5" />
                            </Link>
