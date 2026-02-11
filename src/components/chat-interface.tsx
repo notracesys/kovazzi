@@ -342,19 +342,21 @@ Descrição do ocorrido:
 
       <div className="flex flex-col h-[calc(100vh-4rem)]">
           <div className="border-b bg-card">
-            <div className="flex items-center gap-4 p-4 max-w-4xl mx-auto">
-                <Avatar className="h-10 w-10 border-2 border-primary">
-                    <AvatarImage src="/kovazzi.jpg" alt="Equipe Kovazzi Logo" />
-                    <AvatarFallback>K</AvatarFallback>
-                </Avatar>
-                <div className="flex-grow">
-                    <h2 className="font-bold text-lg">Equipe Kovazzi</h2>
-                    <div className="flex items-center gap-2">
-                        <div className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+            <div className="container mx-auto px-4 h-24 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-2">
+                    <Avatar className="h-12 w-12 border-2 border-primary">
+                        <AvatarImage src="/kovazzi.jpg" alt="Equipe Kovazzi Logo" />
+                        <AvatarFallback>K</AvatarFallback>
+                    </Avatar>
+                    <div className="text-center">
+                        <h2 className="font-bold text-lg">Equipe Kovazzi</h2>
+                        <div className="flex items-center gap-2">
+                            <div className="relative flex h-2.5 w-2.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">Online</p>
                         </div>
-                        <p className="text-sm text-muted-foreground">Online</p>
                     </div>
                 </div>
             </div>
@@ -365,9 +367,9 @@ Descrição do ocorrido:
                   {messages.map((msg, index) => {
                       if (msg.type === 'feedback') {
                         return (
-                            <div key={msg.id} className="max-w-xs mx-auto pt-4 space-y-4 animate-in fade-in-50 duration-500">
-                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={400} height={800} className="rounded-lg object-contain shadow-lg" />
-                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={400} height={800} className="rounded-lg object-contain shadow-lg" />
+                            <div key={msg.id} className="max-w-[150px] ml-10 pt-4 space-y-2 animate-in fade-in-50 duration-500">
+                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={150} height={300} className="rounded-lg object-contain shadow-md" />
+                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={150} height={300} className="rounded-lg object-contain shadow-md" />
                             </div>
                         )
                       }
