@@ -1,13 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ShieldCheck, Loader2, Info, AlertTriangle, PartyPopper, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Loader2, Info, AlertTriangle, PartyPopper, ArrowRight, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,7 +49,7 @@ export default function VerifyPage() {
     setTimeout(() => {
       setIsVerifying(false);
       setIsVerified(true);
-    }, 1000);
+    }, 1500);
   };
   
   const onDialogClose = () => {
@@ -71,7 +71,7 @@ export default function VerifyPage() {
 
   return (
     <>
-      <div className="flex min-h-full flex-col">
+      <div className="flex min-h-full flex-col bg-background">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8 md:py-16 flex flex-col items-center justify-center">
           <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
@@ -96,85 +96,100 @@ export default function VerifyPage() {
             </AlertDialogContent>
           </AlertDialog>
 
-          <div className="w-full max-w-4xl space-y-8 animate-in fade-in-50 duration-1000">
-            <section className="text-center">
-              <h2 className="font-headline text-3xl md:text-4xl font-bold">Informe o ID da sua conta</h2>
-              <p className="mt-2 text-lg text-muted-foreground">
-                Informe o ID da conta banida para contextualizar a aplicação do método.
+          <div className="w-full max-w-md space-y-8 animate-in fade-in-50 duration-1000">
+            <section className="text-center space-y-2">
+                <div className="inline-block bg-primary/10 p-3 rounded-full">
+                    <UserCheck className="w-8 h-8 text-primary" />
+                </div>
+              <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary animate-text-pulse">Verifique sua Conta</h2>
+              <p className="text-lg text-muted-foreground">
+                Informe o ID da sua conta banida para dar o primeiro passo na recuperação.
               </p>
             </section>
 
-            <Card className="w-full">
-              <CardHeader className="bg-card-foreground/5 rounded-t-lg border-b p-4">
-                <CardTitle className="font-bold text-base flex items-center">
-                  <span className="bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm mr-2">1</span> Login
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleVerify, handleFormError)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="accountId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="font-normal text-sm flex items-center text-muted-foreground">ID do jogador <Info className="w-4 h-4 ml-1" /></FormLabel>
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <Input 
-                                placeholder="Insira o ID de jogador aqui" 
-                                {...field} 
-                                className={cn(
-                                  "text-base", 
-                                  isVerified && "border-primary focus-visible:ring-primary"
-                                )} 
-                                disabled={isVerified || isVerifying}
-                              />
-                            </FormControl>
-                            <Button 
-                              type="submit" 
-                              className={cn(
-                                "px-8 font-bold w-40",
-                                isVerified && "bg-green-500 hover:bg-green-600 text-primary-foreground"
-                              )}
-                              disabled={isVerifying}
-                            >
-                              {isVerifying ? (
-                                <Loader2 className="animate-spin" />
-                              ) : isVerified ? (
-                                <>
-                                  <ShieldCheck />
-                                  Verificado
-                                </>
-                              ) : 'Login'}
-                            </Button>
-                          </div>
-                          <FormMessage hidden />
-                        </FormItem>
-                      )}
-                    />
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
+             <div className="relative">
+                <div className={cn(
+                    "absolute -inset-px rounded-xl bg-gradient-to-r from-primary/50 to-red-600/50 transition-all duration-500",
+                    isVerified ? "opacity-100 blur-md" : "opacity-0 blur-none",
+                )}></div>
+                <Card className="w-full relative overflow-hidden transition-all duration-500">
+                <CardContent className="p-6 space-y-6">
+                    <div>
+                        <h3 className="font-bold text-lg flex items-center gap-2">
+                           <span className="flex items-center justify-center h-6 w-6 rounded-full bg-primary text-primary-foreground font-bold text-sm">1</span> 
+                           Identificação da Conta
+                        </h3>
+                         <p className="text-sm text-muted-foreground mt-1">
+                            Use apenas o ID numérico do jogo.
+                         </p>
+                    </div>
+
+                    <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleVerify, handleFormError)} className="space-y-4">
+                        <FormField
+                        control={form.control}
+                        name="accountId"
+                        render={({ field }) => (
+                            <FormItem>
+                            <div className="flex rounded-md shadow-sm bg-input border border-transparent focus-within:border-primary focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
+                                <div className="pl-3 pr-2 flex items-center pointer-events-none">
+                                    <Info className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                                <FormControl>
+                                <Input 
+                                    placeholder="Insira o ID de jogador aqui" 
+                                    {...field} 
+                                    className="text-base border-0 bg-transparent h-12 flex-1 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    disabled={isVerified || isVerifying}
+                                />
+                                </FormControl>
+                                <div className="p-1.5">
+                                    <Button 
+                                        type="submit" 
+                                        className={cn(
+                                            "px-6 font-bold w-[120px] h-full",
+                                            isVerified && "bg-green-500 hover:bg-green-600"
+                                        )}
+                                        disabled={isVerifying || isVerified}
+                                    >
+                                    {isVerifying ? (
+                                        <Loader2 className="animate-spin" />
+                                    ) : isVerified ? (
+                                        <ShieldCheck />
+                                    ) : 'Verificar'}
+                                    </Button>
+                                </div>
+                            </div>
+                            <FormMessage className="pl-2" hidden={!form.formState.errors.accountId} />
+                            </FormItem>
+                        )}
+                        />
+                    </form>
+                    </Form>
+                </CardContent>
+                </Card>
+            </div>
 
             {isVerified && (
-              <Card className="w-full animate-in fade-in-50 duration-1000">
-                <CardHeader className="bg-card-foreground/5 rounded-t-lg border-b p-4">
-                  <CardTitle className="font-bold text-base flex items-center">
-                    <span className="bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm mr-2">2</span> Próximo Passo
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                    <p className="text-muted-foreground mb-4">Sua conta foi verificada com sucesso. Prossiga para a análise completa.</p>
-                    <Button asChild className="font-bold">
-                      <Link href="/analysis">
-                        Prosseguir para Análise
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Link>
-                    </Button>
-                </CardContent>
-              </Card>
+              <div className="relative animate-in fade-in-50 slide-in-from-bottom-10 duration-700">
+                <div className="absolute -inset-px rounded-xl bg-gradient-to-r from-primary/80 to-green-500/80 opacity-100 blur-lg animate-glow"></div>
+
+                <Card className="w-full relative">
+                    <CardContent className="p-6 text-center space-y-4">
+                        <div className="inline-block bg-green-500/10 p-3 rounded-full">
+                            <PartyPopper className="w-8 h-8 text-green-400" />
+                        </div>
+                        <h3 className="font-bold text-xl">Conta Verificada!</h3>
+                        <p className="text-muted-foreground">Tudo certo! Sua conta foi identificada. Agora vamos para a análise detalhada do seu caso.</p>
+                        <Button asChild size="lg" className="w-full font-bold mt-4 bg-primary hover:bg-primary/90 text-primary-foreground relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-shine before:bg-gradient-to-r before:from-transparent before:via-white/50 before:to-transparent">
+                        <Link href="/analysis">
+                            Prosseguir para Análise
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                        </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+              </div>
             )}
           </div>
         </main>
