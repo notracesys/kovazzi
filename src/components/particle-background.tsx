@@ -14,7 +14,7 @@ export default function ParticleBackground() {
       top: `${Math.random() * 100}vh`,
       width: `${Math.random() * 4 + 2}px`,
       height: `${Math.random() * 4 + 2}px`,
-      backgroundColor: 'rgba(255, 0, 0, 0.5)',
+      backgroundColor: 'rgba(30, 95, 205, 0.5)',
       borderRadius: '50%',
       animation: `rise ${Math.random() * 2 + 3}s linear infinite`,
       animationDelay: `-${Math.random() * 5}s`,
