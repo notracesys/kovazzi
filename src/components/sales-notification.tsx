@@ -62,14 +62,18 @@ export default function SalesNotification() {
     };
   }, [isMounted, pathname]);
 
-  if (!isMounted || pathname === '/chat') {
+  if (!isMounted) {
     return null;
+  }
+  
+  if (pathname === '/chat') {
+      return null;
   }
 
   return (
     <div
       className={cn(
-        "fixed bottom-4 left-4 z-50 w-full max-w-[280px] transition-transform duration-500 ease-in-out",
+        "fixed top-20 left-4 z-50 w-full max-w-[280px] transition-transform duration-500 ease-in-out",
         isVisible ? "translate-x-0" : "-translate-x-[calc(100%+2rem)]"
       )}
     >
