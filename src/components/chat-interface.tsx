@@ -350,7 +350,7 @@ Descrição do ocorrido:
                     </Avatar>
                     <div className="text-center">
                         <h2 className="font-bold text-lg">Equipe Kovazzi</h2>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center gap-2">
                             <div className="relative flex h-2.5 w-2.5">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
@@ -367,9 +367,9 @@ Descrição do ocorrido:
                   {messages.map((msg, index) => {
                       if (msg.type === 'feedback') {
                         return (
-                            <div key={msg.id} className="max-w-[150px] ml-10 pt-4 space-y-2 animate-in fade-in-50 duration-500">
-                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={150} height={300} className="rounded-lg object-contain shadow-md" />
-                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={150} height={300} className="rounded-lg object-contain shadow-md" />
+                            <div key={msg.id} className="ml-10 pt-4 space-y-2 animate-in fade-in-50 duration-500">
+                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={120} height={240} className="rounded-lg object-contain shadow-md" />
+                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={120} height={240} className="rounded-lg object-contain shadow-md" />
                             </div>
                         )
                       }
