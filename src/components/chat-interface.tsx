@@ -366,8 +366,8 @@ Descrição do ocorrido:
                       if (msg.type === 'feedback') {
                         return (
                             <div key={msg.id} className="ml-10 pt-2 flex flex-col space-y-4 animate-in fade-in-50 duration-500">
-                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={150} height={300} className="rounded-lg object-contain shadow-md" />
-                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={150} height={300} className="rounded-lg object-contain shadow-md" />
+                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={200} height={400} className="rounded-lg object-contain shadow-md" />
+                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={200} height={400} className="rounded-lg object-contain shadow-md" />
                             </div>
                         )
                       }
