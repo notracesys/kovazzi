@@ -30,7 +30,7 @@ export default function SalesNotification() {
   }, []);
 
   useEffect(() => {
-    if (!isMounted || pathname === '/chat') {
+    if (!isMounted || pathname === '/chat' || pathname === '/creator-studio-xyz') {
       return;
     }
 
@@ -66,7 +66,7 @@ export default function SalesNotification() {
     return null;
   }
   
-  if (pathname === '/chat') {
+  if (pathname === '/chat' || pathname === '/creator-studio-xyz') {
       return null;
   }
 
