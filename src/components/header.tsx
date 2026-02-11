@@ -5,12 +5,12 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useState, useEffect } from 'react';
 
 const Logo = () => (
-    <Link href="https://www.tiktok.com/@desbanx?_r=1&_t=ZS-93SAuIt9o9t" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+    <Link href="https://www.tiktok.com/@kovazzi" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
         <Avatar className="h-9 w-9">
-            <AvatarImage src="/fotodeperfil.jpg" alt="Foto de perfil de @desbanx" />
-            <AvatarFallback>DX</AvatarFallback>
+            <AvatarImage src="/kovazzi.jpg" alt="Foto de perfil de @kovazzi" />
+            <AvatarFallback>K</AvatarFallback>
         </Avatar>
-        <span className="font-semibold text-lg text-foreground">@desbanx</span>
+        <span className="font-semibold text-lg text-foreground">@kovazzi</span>
     </Link>
 );
 
