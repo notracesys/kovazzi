@@ -341,21 +341,23 @@ Descrição do ocorrido:
       </AlertDialog>
 
       <div className="flex flex-col h-[calc(100vh-4rem)]">
-          <div className="bg-card border-b p-3 flex items-center gap-3">
-              <Avatar>
-                  <AvatarImage src="/equipedesbanx.jpg" alt="Equipe DesbanX Logo" />
-                  <AvatarFallback>DX</AvatarFallback>
-              </Avatar>
-              <div>
-                  <div className="flex items-center gap-2">
-                      <h2 className="font-bold">Equipe DesbanX</h2>
-                      <div className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                      </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground">Online</p>
-              </div>
+          <div className="border-b bg-card">
+            <div className="flex items-center gap-4 p-4 max-w-4xl mx-auto">
+                <Avatar className="h-10 w-10 border-2 border-primary">
+                    <AvatarImage src="/equipedesbanx.jpg" alt="Equipe DesbanX Logo" />
+                    <AvatarFallback>DX</AvatarFallback>
+                </Avatar>
+                <div className="flex-grow">
+                    <h2 className="font-bold text-lg">Equipe DesbanX</h2>
+                    <div className="flex items-center gap-2">
+                        <div className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Online</p>
+                    </div>
+                </div>
+            </div>
           </div>
 
           <div className="flex-grow p-4 overflow-y-auto">
