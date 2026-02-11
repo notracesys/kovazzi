@@ -124,14 +124,6 @@ export default {
             transform: 'translateX(100%)',
           },
         },
-        'text-pulse': {
-          '0%, 100%': { textShadow: '0 0 8px hsl(var(--primary))' },
-          '50%': { textShadow: '0 0 20px hsl(var(--primary))' },
-        },
-        'glow': {
-          '0%, 100%': { opacity: '0.75' },
-          '50%': { opacity: '1' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -139,8 +131,6 @@ export default {
         'dialog-show': 'dialog-show 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         'dialog-hide': 'dialog-hide 0.2s ease-in-out',
         'shine': 'shine 2s linear infinite',
-        'text-pulse': 'text-pulse 2s ease-in-out infinite',
-        'glow': 'glow 2s ease-in-out infinite',
       },
     },
   },
