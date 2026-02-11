@@ -22,10 +22,15 @@ export default function SalesNotification() {
   const [isVisible, setIsVisible] = useState(false);
   const [currentName, setCurrentName] = useState('');
   const [currentTimeText, setCurrentTimeText] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname === '/chat') {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted || pathname === '/chat') {
       return;
     }
 
@@ -55,9 +60,9 @@ export default function SalesNotification() {
       clearTimeout(initialTimeout);
       clearInterval(interval);
     };
-  }, [pathname]);
+  }, [isMounted, pathname]);
 
-  if (pathname === '/chat') {
+  if (!isMounted || pathname === '/chat') {
     return null;
   }
 
