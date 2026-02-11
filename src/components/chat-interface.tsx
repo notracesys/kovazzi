@@ -374,13 +374,6 @@ Descrição do ocorrido:
                       const prevMessage = messages[index - 1];
                       const nextMessage = messages[index + 1];
 
-                      const roundedCorners = cn({
-                        'rounded-bl-none': isUser && nextMessage?.sender === 'user',
-                        'rounded-br-none': isUser && prevMessage?.sender === 'user',
-                        'rounded-tr-none': isTeam && prevMessage?.sender === 'team',
-                        'rounded-tl-none': isTeam && nextMessage?.sender === 'team',
-                      });
-
                       return (
                       <div
                           key={msg.id}
@@ -401,9 +394,17 @@ Descrição do ocorrido:
                           )}
                           <div
                               className={cn(
-                                'p-3 text-white max-w-[85%] md:max-w-lg shadow-md',
-                                roundedCorners,
-                                isUser ? 'bg-primary rounded-t-xl rounded-bl-xl' : 'bg-secondary rounded-t-xl rounded-br-xl'
+                                'relative p-3 text-white max-w-[85%] md:max-w-lg shadow-md',
+                                // Base styles
+                                isUser ? 'bg-primary rounded-t-xl rounded-bl-xl' : 'bg-secondary rounded-t-xl rounded-br-xl',
+                                // Grouping styles for consecutive messages
+                                (isUser && prevMessage?.sender === 'user') && 'rounded-tr-none',
+                                (isUser && nextMessage?.sender === 'user') && 'rounded-bl-none',
+                                (isTeam && prevMessage?.sender === 'team') && 'rounded-tl-none',
+                                (isTeam && nextMessage?.sender === 'team') && 'rounded-br-none',
+                                // Tail pseudo-elements for the last message in a block
+                                (isTeam && nextMessage?.sender !== 'team') && 'before:content-[""] before:absolute before:h-3 before:w-3 before:bg-secondary before:bottom-0 before:left-[-6px] before:rotate-45',
+                                (isUser && nextMessage?.sender !== 'user') && 'after:content-[""] after:absolute after:h-3 after:w-3 after:bg-primary after:bottom-0 after:right-[-6px] after:rotate-45'
                               )}
                               >
                               <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
