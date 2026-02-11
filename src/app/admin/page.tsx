@@ -13,9 +13,6 @@ import { useUser } from '@/firebase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-// TODO: Replace this with your actual admin User ID (UID) from Firebase Authentication.
-const ADMIN_UID = 'REPLACE_WITH_YOUR_FIREBASE_USER_ID';
-
 const chartConfig = {
   visits: {
     label: 'Visitas',
@@ -34,7 +31,9 @@ const staticLogsData = [
 ];
 
 export default function AdminPage() {
-  const { user, loading } = useUser();
+  const { user, loading: userLoading } = useUser();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState<any[]>([]);
   const [stats, setStats] = useState({ todayVisits: 0, totalVisits: 0, errorLogs: 0 });
 
@@ -54,6 +53,32 @@ export default function AdminPage() {
       errorLogs: 12,
     });
   }, []);
+
+  useEffect(() => {
+    if (userLoading) {
+      setLoading(true);
+      return;
+    }
+
+    if (!user) {
+      setLoading(false);
+      setIsAdmin(false);
+      return;
+    }
+
+    user.getIdTokenResult()
+      .then((idTokenResult) => {
+        const userIsAdmin = !!idTokenResult.claims.admin;
+        setIsAdmin(userIsAdmin);
+      })
+      .catch((error) => {
+        console.error("Error getting custom claims:", error);
+        setIsAdmin(false);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [user, userLoading]);
   
   if (loading) {
     return (
@@ -66,7 +91,7 @@ export default function AdminPage() {
     );
   }
 
-  if (!user || user.uid !== ADMIN_UID) {
+  if (!isAdmin) {
     return (
       <div className="flex min-h-screen w-full flex-col bg-muted/40 dark:bg-background">
         <Header />
