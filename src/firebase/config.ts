@@ -10,9 +10,9 @@
 // You can find it in your Firebase project settings.
 export const firebaseConfig = {
   apiKey: "mock-api-key",
-  authDomain: "studio-359365564245.firebaseapp.com",
-  projectId: "studio-359365564245",
-  storageBucket: "studio-359365564245.appspot.com",
-  messagingSenderId: "359365564245",
-  appId: "1:359365564245:web:a1b2c3d4e5f6a7b8c9d0e1"
+  authDomain: "studio-3062338612-27b65.firebaseapp.com",
+  projectId: "studio-3062338612-27b65",
+  storageBucket: "studio-3062338612-27b65.appspot.com",
+  messagingSenderId: "3062338612",
+  appId: "1:3062338612:web:a1b2c3d4e5f6a7b8c9d0e1"
 };
