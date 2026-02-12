@@ -9,10 +9,11 @@
 // This configuration is generated automatically by the Firebase tool.
 // You can find it in your Firebase project settings.
 export const firebaseConfig = {
-  apiKey: "mock-api-key",
-  authDomain: "studio-3062338612-27b65.firebaseapp.com",
-  projectId: "studio-3062338612-27b65",
-  storageBucket: "studio-3062338612-27b65.appspot.com",
-  messagingSenderId: "3062338612",
-  appId: "1:3062338612:web:a1b2c3d4e5f6a7b8c9d0e1"
+  apiKey: "AIzaSyCbwUvB14QgmDwljayInqeBpR0ebQ71Dnk",
+  authDomain: "kovazzi.firebaseapp.com",
+  projectId: "kovazzi",
+  storageBucket: "kovazzi.appspot.com",
+  messagingSenderId: "288166436249",
+  appId: "1:288166436249:web:1ae4f8fbe41b1924bf8708",
+  measurementId: "G-479LVSLT4Q"
 };
