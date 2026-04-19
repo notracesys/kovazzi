@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/chart';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
-import { Eye, TrendingUp, Users } from 'lucide-react';
+import { Eye, TrendingUp } from 'lucide-react';
 import { format, isSameDay, startOfWeek, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -53,7 +53,6 @@ export default function AdminDashboard() {
       const currentDay = addDays(start, i);
       const count = visitsData.filter(visit => {
         if (!visit.timestamp) return false;
-        // Handle both Firestore Timestamp and regular Date
         const visitDate = visit.timestamp.toDate ? visit.timestamp.toDate() : new Date(visit.timestamp);
         return isSameDay(visitDate, currentDay);
       }).length;
@@ -70,24 +69,24 @@ export default function AdminDashboard() {
   if (!mounted) return null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground overflow-x-hidden">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-6 md:py-10">
-        <div className="flex flex-col gap-6 animate-in fade-in duration-700">
-          <div className="space-y-1">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">Painel de Controle</h1>
-            <p className="text-sm md:text-base text-muted-foreground">Métricas reais de acesso ao site.</p>
+      <main className="flex-grow container mx-auto px-2 md:px-4 py-6 md:py-10">
+        <div className="flex flex-col gap-6 animate-in fade-in duration-700 max-w-full">
+          <div className="space-y-1 px-2">
+            <h1 className="text-xl md:text-3xl font-bold tracking-tight text-primary">Painel de Controle</h1>
+            <p className="text-xs md:text-base text-muted-foreground">Métricas reais de acesso ao site.</p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
             {/* Card de Total de Visitas */}
-            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-1 shadow-xl">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 md:px-6">
-                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-widest">Total de Visitas</CardTitle>
-                <Eye className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-1 shadow-xl mx-2 md:mx-0">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4">
+                <CardTitle className="text-[10px] md:text-sm font-medium text-muted-foreground uppercase tracking-widest">Total de Visitas</CardTitle>
+                <Eye className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent className="px-4 md:px-6 pb-6">
-                <div className="text-3xl md:text-4xl font-black text-primary">
+              <CardContent className="px-4 pb-6">
+                <div className="text-2xl md:text-4xl font-black text-primary">
                   {isLoading ? (
                     <span className="animate-pulse opacity-50">...</span>
                   ) : (
@@ -96,36 +95,36 @@ export default function AdminDashboard() {
                 </div>
                 <div className="mt-2 flex items-center gap-1.5">
                   <div className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-[10px] md:text-xs text-muted-foreground">Monitorando acessos reais</p>
+                  <p className="text-[9px] md:text-xs text-muted-foreground">Monitorando acessos reais</p>
                 </div>
               </CardContent>
             </Card>
 
             {/* Gráfico Semanal */}
-            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-2 shadow-xl">
-              <CardHeader className="px-4 md:px-6">
-                <CardTitle className="text-base md:text-lg flex items-center gap-2">
+            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-2 shadow-xl mx-2 md:mx-0">
+              <CardHeader className="px-4">
+                <CardTitle className="text-sm md:text-lg flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
                   Tráfego Semanal
                 </CardTitle>
-                <CardDescription className="text-xs md:text-sm">Visitas distribuídas pelos dias da semana atual.</CardDescription>
+                <CardDescription className="text-[10px] md:text-sm">Visitas distribuídas pelos dias da semana atual.</CardDescription>
               </CardHeader>
-              <CardContent className="h-[250px] md:h-[300px] px-2 md:px-6">
+              <CardContent className="h-[220px] md:h-[300px] px-1 md:px-6">
                 <ChartContainer config={chartConfig} className="h-full w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                       <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis 
                         dataKey="name" 
                         stroke="#666" 
-                        fontSize={10} 
+                        fontSize={9} 
                         tickLine={false} 
                         axisLine={false} 
                         tickFormatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
                       />
                       <YAxis 
                         stroke="#666" 
-                        fontSize={10} 
+                        fontSize={9} 
                         tickLine={false} 
                         axisLine={false}
                         allowDecimals={false}
@@ -137,12 +136,12 @@ export default function AdminDashboard() {
                       <Bar 
                         dataKey="visits" 
                         radius={[4, 4, 0, 0]} 
-                        barSize={30}
+                        barSize={20}
                       >
                         {weeklyData.map((entry, index) => (
                           <Cell 
                             key={`cell-${index}`} 
-                            fill={entry.isToday ? 'hsl(var(--primary))' : 'rgba(255, 204, 0, 0.3)'} 
+                            fill={entry.isToday ? 'hsl(var(--primary))' : 'rgba(255, 204, 0, 0.2)'} 
                           />
                         ))}
                       </Bar>
