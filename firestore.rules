@@ -1,0 +1,141 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY:
+     * This ruleset implements a strict User-Ownership model. All application data is 
+     * hierarchically organized under the specific User ID that created it. 
+     *
+     * DATA STRUCTURE:
+     * The hierarchy follows a path-based ownership pattern: 
+     * /users/{userId}/sessions/{sessionId}/{sub-collection}/{documentId}
+     *
+     * KEY SECURITY DECISIONS:
+     * 1. Authorization Independence: While the path provides the primary security 
+     *    context, every document is required to contain a denormalized 'ownerId' 
+     *    field matching the creator's UID. This facilitates future-proofing for 
+     *    queries and allows for atomic security checks.
+     * 2. Prototyping Flexibility: Rules do not enforce data types (e.g., string vs int) 
+     *    or the presence of non-authorization fields, allowing the frontend schema 
+     *    to evolve rapidly.
+     * 3. Relational Integrity: The rules strictly enforce that a user can only 
+     *    create data in their own path and that ownership fields remain immutable 
+     *    once set.
+     * 4. Anonymous Support: The rules treat anonymous authenticated users the same 
+     *    as permanent users, as both provide a unique 'request.auth.uid'.
+     */
+
+    // --- HELPER FUNCTIONS ---
+
+    /** @description Checks if the request is from an authenticated user. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the user's UID matches the provided userId. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Checks if the document exists and the user is the owner. */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    /** @description Validates that the internal ownerId field matches the creator's UID. */
+    function isValidOwnership() {
+      return request.resource.data.ownerId == request.auth.uid;
+    }
+
+    /** @description Ensures that the ownerId field cannot be modified after creation. */
+    function isOwnershipImmutable() {
+      return request.resource.data.ownerId == resource.data.ownerId;
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the root user document.
+     * @path /users/{userId}
+     * @allow (create) if auth.uid matches userId.
+     * @deny (list) if auth.uid does not match userId.
+     * @principle Self-creation and strict path ownership.
+     */
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update, delete: if isExistingOwner(userId);
+
+      /**
+       * @description Stores individual user interaction sessions.
+       * @path /users/{userId}/sessions/{sessionId}
+       * @allow (create) if auth.uid matches userId and internal ownerId is correct.
+       * @deny (update) if attempting to change the ownerId.
+       * @principle Relational integrity and ownership denormalization.
+       */
+      match /sessions/{sessionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidOwnership();
+        allow update: if isExistingOwner(userId) && isOwnershipImmutable();
+        allow delete: if isExistingOwner(userId);
+
+        /**
+         * @description User's quiz answers for a specific session.
+         * @path /users/{userId}/sessions/{sessionId}/quizResponses/{quizResponseId}
+         * @allow (get) if auth.uid matches the path userId.
+         * @deny (create) if auth.uid does not match the path userId.
+         * @principle Inherited path ownership.
+         */
+        match /quizResponses/{quizResponseId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidOwnership();
+          allow update: if isExistingOwner(userId) && isOwnershipImmutable();
+          allow delete: if isExistingOwner(userId);
+        }
+
+        /**
+         * @description Verified Free Fire account details for a session.
+         * @path /users/{userId}/sessions/{sessionId}/freeFireAccounts/{freeFireAccountId}
+         * @allow (list) if the user is the path owner.
+         * @deny (delete) if the document does not exist.
+         * @principle Ownership-based write protection.
+         */
+        match /freeFireAccounts/{freeFireAccountId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidOwnership();
+          allow update: if isExistingOwner(userId) && isOwnershipImmutable();
+          allow delete: if isExistingOwner(userId);
+        }
+
+        /**
+         * @description Results and personalized messages for the analysis.
+         * @path /users/{userId}/sessions/{sessionId}/analysisResults/{analysisResultId}
+         * @allow (update) if the existing owner is making the request.
+         * @deny (create) if ownerId in data doesn't match authenticated UID.
+         * @principle Denormalization for authorization independence.
+         */
+        match /analysisResults/{analysisResultId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidOwnership();
+          allow update: if isExistingOwner(userId) && isOwnershipImmutable();
+          allow delete: if isExistingOwner(userId);
+        }
+
+        /**
+         * @description Records of service purchases made by the user.
+         * @path /users/{userId}/sessions/{sessionId}/servicePurchases/{servicePurchaseId}
+         * @allow (create) if the user is authenticated and matches the path.
+         * @deny (write) if the user is not signed in.
+         * @principle Strict path-based access control.
+         */
+        match /servicePurchases/{servicePurchaseId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidOwnership();
+          allow update: if isExistingOwner(userId) && isOwnershipImmutable();
+          allow delete: if isExistingOwner(userId);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,388 @@
+{
+  "entities": {
+    "UserSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserSession",
+      "type": "object",
+      "description": "Represents a single user's interaction session with the FF Account Assist application, tracking their progress from the initial quiz to potential service purchase.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserSession entity."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user session was initiated.",
+          "format": "date-time"
+        },
+        "lastActivityAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last recorded activity within the user session.",
+          "format": "date-time"
+        },
+        "quizResponseId": {
+          "type": "string",
+          "description": "Reference to the QuizResponse entity associated with this session. (Relationship: UserSession 1:1 QuizResponse)"
+        },
+        "freeFireAccountId": {
+          "type": "string",
+          "description": "Reference to the FreeFireAccount entity verified during this session. (Relationship: UserSession 1:1 FreeFireAccount)"
+        },
+        "analysisResultId": {
+          "type": "string",
+          "description": "Reference to the AnalysisResult entity generated for this session. (Relationship: UserSession 1:1 AnalysisResult)"
+        },
+        "hasAccessedPaidService": {
+          "type": "boolean",
+          "description": "Indicates whether the user has purchased and gained access to the full service features within this session."
+        },
+        "servicePurchaseId": {
+          "type": "string",
+          "description": "Reference to the ServicePurchase entity if a purchase was made during this session. (Relationship: UserSession 1:1 ServicePurchase)"
+        }
+      },
+      "required": [
+        "id",
+        "createdAt",
+        "quizResponseId",
+        "freeFireAccountId",
+        "analysisResultId",
+        "hasAccessedPaidService"
+      ]
+    },
+    "QuizResponse": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "QuizResponse",
+      "type": "object",
+      "description": "Stores the user's answers collected from the initial strategic quiz.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the QuizResponse entity."
+        },
+        "userSessionId": {
+          "type": "string",
+          "description": "Reference to the UserSession entity that initiated these quiz responses. (Relationship: UserSession 1:1 QuizResponse)"
+        },
+        "banReasonInput": {
+          "type": "string",
+          "description": "The reason for the ban as stated by the user (e.g., 'uso de software de terceiros', 'fraude')."
+        },
+        "appealAttemptsCount": {
+          "type": "number",
+          "description": "The number of previous attempts the user made to appeal their ban."
+        },
+        "accountEmotionalValue": {
+          "type": "string",
+          "description": "User's perception of the emotional value of their Free Fire account (e.g., 'alto', 'moderado', 'baixo')."
+        },
+        "accountFinancialValue": {
+          "type": "string",
+          "description": "User's perception of the financial value invested in their Free Fire account (e.g., 'alto', 'moderado', 'baixo')."
+        },
+        "believesIntentionalViolation": {
+          "type": "boolean",
+          "description": "User's self-perception regarding whether they intentionally violated Free Fire's terms of service."
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "Timestamp when the quiz responses were submitted.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userSessionId",
+        "banReasonInput",
+        "appealAttemptsCount",
+        "accountEmotionalValue",
+        "accountFinancialValue",
+        "believesIntentionalViolation",
+        "submittedAt"
+      ]
+    },
+    "FreeFireAccount": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FreeFireAccount",
+      "type": "object",
+      "description": "Stores publicly verifiable details of a Free Fire account after user submission and API verification.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this Free Fire account record in our system."
+        },
+        "freeFirePlayerId": {
+          "type": "string",
+          "description": "The actual Free Fire player ID entered by the user."
+        },
+        "nickname": {
+          "type": "string",
+          "description": "The public nickname associated with the Free Fire player ID."
+        },
+        "level": {
+          "type": "number",
+          "description": "The public level of the Free Fire account."
+        },
+        "server": {
+          "type": "string",
+          "description": "The game server where the Free Fire account is registered."
+        },
+        "publicStatus": {
+          "type": "string",
+          "description": "The public status of the Free Fire account (e.g., 'active', 'banned', 'not found')."
+        },
+        "lastVerifiedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the Free Fire account details were last successfully verified via external API.",
+          "format": "date-time"
+        },
+        "userSessionId": {
+          "type": "string",
+          "description": "Reference to the UserSession entity during which this Free Fire account was verified. (Relationship: FreeFireAccount 1:1 UserSession)"
+        }
+      },
+      "required": [
+        "id",
+        "freeFirePlayerId",
+        "nickname",
+        "level",
+        "server",
+        "publicStatus",
+        "lastVerifiedAt",
+        "userSessionId"
+      ]
+    },
+    "AnalysisResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AnalysisResult",
+      "type": "object",
+      "description": "Stores the outcome and personalized messages generated by the Data Analysis Engine for a specific user session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AnalysisResult entity."
+        },
+        "userSessionId": {
+          "type": "string",
+          "description": "Reference to the UserSession entity for which this analysis result was generated. (Relationship: UserSession 1:1 AnalysisResult)"
+        },
+        "recoveryLikelihoodScore": {
+          "type": "number",
+          "description": "A numerical score (e.g., 0-100) indicating the calculated likelihood of account recovery."
+        },
+        "recoveryCategory": {
+          "type": "string",
+          "description": "A categorical label for recovery likelihood (e.g., 'Strong', 'Moderate', 'Weak')."
+        },
+        "personalizedMessage": {
+          "type": "string",
+          "description": "The full personalized message generated for the user based on quiz answers and analysis."
+        },
+        "technicalAnalysisSummary": {
+          "type": "string",
+          "description": "A summary of the technical ban analysis, identifying ban type and potential common errors (may be accessible pre-paywall)."
+        },
+        "appealGuidanceSummary": {
+          "type": "string",
+          "description": "Initial guidance or tips for appealing, based on collected data (may be accessible pre-paywall)."
+        },
+        "disclaimerAcknowledged": {
+          "type": "boolean",
+          "description": "Indicates if the legal disclaimer regarding non-guaranteed recovery was presented with this result."
+        },
+        "generatedAt": {
+          "type": "string",
+          "description": "Timestamp when the analysis result was generated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userSessionId",
+        "recoveryLikelihoodScore",
+        "recoveryCategory",
+        "personalizedMessage",
+        "disclaimerAcknowledged",
+        "generatedAt"
+      ]
+    },
+    "ServicePurchase": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ServicePurchase",
+      "type": "object",
+      "description": "Records details of a user's purchase of the full account recovery analysis and appeal assistance service.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ServicePurchase entity."
+        },
+        "userSessionId": {
+          "type": "string",
+          "description": "Reference to the UserSession entity during which this service was purchased. (Relationship: UserSession 1:1 ServicePurchase)"
+        },
+        "purchaseDate": {
+          "type": "string",
+          "description": "Date and time when the service was purchased.",
+          "format": "date-time"
+        },
+        "amountPaid": {
+          "type": "number",
+          "description": "The amount paid for the service."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency in which the payment was made (e.g., 'BRL', 'USD')."
+        },
+        "externalTransactionId": {
+          "type": "string",
+          "description": "The transaction identifier provided by the external payment gateway."
+        },
+        "serviceType": {
+          "type": "string",
+          "description": "A description of the specific service purchased (e.g., 'Complete Analysis & Appeal Assistance')."
+        },
+        "accessGranted": {
+          "type": "boolean",
+          "description": "Indicates whether access to the premium features of the service has been successfully granted."
+        }
+      },
+      "required": [
+        "id",
+        "userSessionId",
+        "purchaseDate",
+        "amountPaid",
+        "currency",
+        "externalTransactionId",
+        "serviceType",
+        "accessGranted"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/sessions/{sessionId}",
+        "definition": {
+          "entityName": "UserSession",
+          "schema": {
+            "$ref": "#/backend/entities/UserSession"
+          },
+          "description": "Stores individual user interaction sessions with the FF Account Assist application. The '{userId}' in the path identifies the owner of this session. Each document will include a denormalized 'ownerId' field (matching 'request.auth.uid') for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (from request.auth.uid) who owns this session."
+            },
+            {
+              "name": "sessionId",
+              "description": "The unique identifier for a specific user session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/sessions/{sessionId}/quizResponses/{quizResponseId}",
+        "definition": {
+          "entityName": "QuizResponse",
+          "schema": {
+            "$ref": "#/backend/entities/QuizResponse"
+          },
+          "description": "Stores the user's answers collected from the initial strategic quiz for a specific session. The '{userId}' in the path identifies the owner. Each document includes a denormalized 'ownerId' field (matching 'request.auth.uid') for authorization independence, copied from its parent UserSession.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (from request.auth.uid) who owns the parent session."
+            },
+            {
+              "name": "sessionId",
+              "description": "The unique identifier of the parent UserSession."
+            },
+            {
+              "name": "quizResponseId",
+              "description": "The unique identifier for the quiz response."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/sessions/{sessionId}/freeFireAccounts/{freeFireAccountId}",
+        "definition": {
+          "entityName": "FreeFireAccount",
+          "schema": {
+            "$ref": "#/backend/entities/FreeFireAccount"
+          },
+          "description": "Stores publicly verifiable details of a Free Fire account submitted and verified during a specific session. The '{userId}' in the path identifies the owner. Each document includes a denormalized 'ownerId' field (matching 'request.auth.uid') for authorization independence, copied from its parent UserSession.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (from request.auth.uid) who owns the parent session."
+            },
+            {
+              "name": "sessionId",
+              "description": "The unique identifier of the parent UserSession."
+            },
+            {
+              "name": "freeFireAccountId",
+              "description": "The unique identifier for the Free Fire account record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/sessions/{sessionId}/analysisResults/{analysisResultId}",
+        "definition": {
+          "entityName": "AnalysisResult",
+          "schema": {
+            "$ref": "#/backend/entities/AnalysisResult"
+          },
+          "description": "Stores the outcome and personalized messages generated by the Data Analysis Engine for a specific user session. The '{userId}' in the path identifies the owner. Each document includes a denormalized 'ownerId' field (matching 'request.auth.uid') for authorization independence, copied from its parent UserSession.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (from request.auth.uid) who owns the parent session."
+            },
+            {
+              "name": "sessionId",
+              "description": "The unique identifier of the parent UserSession."
+            },
+            {
+              "name": "analysisResultId",
+              "description": "The unique identifier for the analysis result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/sessions/{sessionId}/servicePurchases/{servicePurchaseId}",
+        "definition": {
+          "entityName": "ServicePurchase",
+          "schema": {
+            "$ref": "#/backend/entities/ServicePurchase"
+          },
+          "description": "Records details of a user's purchase of the full account recovery service during a specific session. The '{userId}' in the path identifies the owner. Each document includes a denormalized 'ownerId' field (matching 'request.auth.uid') for authorization independence, copied from its parent UserSession.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (from request.auth.uid) who owns the parent session."
+            },
+            {
+              "name": "sessionId",
+              "description": "The unique identifier of the parent UserSession."
+            },
+            {
+              "name": "servicePurchaseId",
+              "description": "The unique identifier for the service purchase."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure for FF Account Assist is designed to prioritize security, scalability, and debuggability, adhering strictly to the provided CORE DESIGN PRINCIPLES and DESIGN STRATEGY MANDATES. The user's initial thought regarding 'site visits' is addressed by the `UserSession` entity, which tracks each user's unique journey through the application's core flow, effectively logging 'visits' within the application context.\n\n**Authorization Independence (CRITICAL) & QAPs (Rules are not Filters):**\nThis is achieved primarily through a combination of path-based ownership and denormalization. Each logical 'user' (identified by `request.auth.uid`, whether anonymous or authenticated) will have their data organized under a root collection `/users/{userId}/`. This immediately ensures that `list` operations are secure and efficient, as `request.auth.uid` can directly filter for documents where `userId == request.auth.uid` in the path, preventing unauthorized access (QAPs).\n\nTo ensure Authorization Independence for subcollections, every document, regardless of its nesting level, will include an `ownerId` field. This `ownerId` will store the `request.auth.uid` of the user who initiated the `UserSession`. For example, a `QuizResponse` document will not rely on fetching its parent `UserSession` to determine ownership; instead, its `ownerId` field directly provides this information. This strategy eliminates the need for `get()` calls in security rules, making them atomic, simpler to write, and easier to debug, while also enabling atomic write operations (transactions/batches) across parent and child documents without rule breakage.\n\n**Structural Segregation & Access Modeling:**\nAll data related to a single user's journey (UserSession, QuizResponse, FreeFireAccount, AnalysisResult, ServicePurchase) is inherently private to that user. By nesting these entities under `/users/{userId}/sessions/{sessionId}/...`, we achieve structural segregation. All documents within a given user's path share the same fundamental security posture: they are owned by `request.auth.uid`. This consistent access model simplifies security rules to a direct comparison of `request.auth.uid` against the `userId` in the path and/or the `ownerId` field within the document.\n\n**Data Clarity and Predictability:**\nThe structure uses descriptive path parameters (e.g., `{userId}`, `{sessionId}`) and ensures consistent field naming. The `id` field within each schema is assumed to be the Firestore document ID, maintaining a predictable schema.\n\nIn summary, the design robustly supports a secure, scalable, and debuggable Firestore environment by tying all application-specific data to the authenticated user's ID (or anonymous ID), denormalizing ownership information, and leveraging hierarchical paths to simplify authorization and enforce data isolation effectively."
+  }
+}
