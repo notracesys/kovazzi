@@ -1,8 +1,11 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import SalesNotification from '@/components/sales-notification';
 import Script from 'next/script';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { VisitTracker } from '@/components/visit-tracker';
 
 export const metadata: Metadata = {
   title: 'UNBAN STRATEGY',
@@ -38,9 +41,12 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="font-body antialiased">
-          {children}
-          <Toaster />
-          <SalesNotification />
+          <FirebaseClientProvider>
+            <VisitTracker />
+            {children}
+            <Toaster />
+            <SalesNotification />
+          </FirebaseClientProvider>
       </body>
     </html>
   );
