@@ -44,6 +44,7 @@ const chartConfig = {
 };
 
 export default function AdminDashboard() {
+  const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState({
     visits: 4281,
     active: 0,
@@ -51,9 +52,9 @@ export default function AdminDashboard() {
     revenue: 'R$ 3.820,00'
   });
 
-  // Efeito para simular usuários ativos mudando em tempo real
   useEffect(() => {
-    // Valor inicial
+    setMounted(true);
+    // Valor inicial aleatório para usuários ativos apenas no cliente
     setStats(prev => ({ ...prev, active: Math.floor(Math.random() * (65 - 35 + 1)) + 35 }));
 
     const interval = setInterval(() => {
@@ -88,7 +89,9 @@ export default function AdminDashboard() {
                 <Eye className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.visits.toLocaleString()}</div>
+                <div className="text-2xl font-bold">
+                  {mounted ? stats.visits.toLocaleString() : '4281'}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   <span className="text-green-500 inline-flex items-center font-bold">
                     +18% <ArrowUpRight className="h-3 w-3 ml-1" />
@@ -103,7 +106,9 @@ export default function AdminDashboard() {
                 <Users className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-primary">{stats.active}</div>
+                <div className="text-2xl font-bold text-primary">
+                  {mounted ? stats.active : '0'}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                    <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
