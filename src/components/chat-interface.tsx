@@ -344,7 +344,7 @@ Descrição do ocorrido:
           <div className="border-b bg-card">
             <div className="container mx-auto px-4 h-20 flex items-center gap-4">
                 <Avatar className="h-12 w-12 border-2 border-primary">
-                    <AvatarImage src="/eu.png" alt="Equipe Kovazzi Logo" />
+                    <AvatarImage src="/equipe.png" alt="Equipe Kovazzi Logo" />
                     <AvatarFallback>K</AvatarFallback>
                 </Avatar>
                 <div>
@@ -388,7 +388,7 @@ Descrição do ocorrido:
                             <div className="w-8">
                               {nextMessage?.sender !== 'team' && (
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src="/eu.png" alt="Equipe Kovazzi Logo" />
+                                    <AvatarImage src="/equipe.png" alt="Equipe Kovazzi Logo" />
                                     <AvatarFallback>K</AvatarFallback>
                                 </Avatar>
                               )}
@@ -422,7 +422,7 @@ Descrição do ocorrido:
                   {isTyping && (
                        <div className="flex items-end gap-2 justify-start">
                           <Avatar className="h-8 w-8">
-                              <AvatarImage src="/eu.png" alt="Equipe Kovazzi Logo" />
+                              <AvatarImage src="/equipe.png" alt="Equipe Kovazzi Logo" />
                               <AvatarFallback>K</AvatarFallback>
                           </Avatar>
                           <div className="max-w-md rounded-lg p-2 bg-secondary">
