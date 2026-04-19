@@ -19,24 +19,20 @@ export default function Header() {
   const [activeUsers, setActiveUsers] = useState(137);
 
   useEffect(() => {
-    // Start with an initial random number between 100 and 200
     setActiveUsers(Math.floor(Math.random() * (200 - 100 + 1)) + 100);
 
     const interval = setInterval(() => {
       setActiveUsers(prevUsers => {
-        // Fluctuate by -5 to 5
         const change = Math.floor(Math.random() * 11) - 5;
         let newCount = prevUsers + change;
-        // Keep it within a realistic range
         if (newCount < 100) newCount = 100;
         if (newCount > 200) newCount = 200;
         return newCount;
       });
-    }, 3500); // Update every 3.5 seconds
+    }, 3500);
 
-    // Clear interval on unmount
     return () => clearInterval(interval);
-  }, []); // Empty dependency array to run only once
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/50 backdrop-blur-lg">
