@@ -53,6 +53,7 @@ export default function AdminDashboard() {
       const currentDay = addDays(start, i);
       const count = visitsData.filter(visit => {
         if (!visit.timestamp) return false;
+        // Handle both Firestore Timestamp and regular Date
         const visitDate = visit.timestamp.toDate ? visit.timestamp.toDate() : new Date(visit.timestamp);
         return isSameDay(visitDate, currentDay);
       }).length;
