@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 const Logo = () => (
     <Link href="/" className="flex items-center gap-1">
         <Avatar className="h-9 w-9">
-            <AvatarImage src="/kovazzi.jpg" alt="Foto de perfil de @kovazzi" />
+            <AvatarImage src="/eu.png" alt="Foto de perfil de @kovazzi" />
             <AvatarFallback>K</AvatarFallback>
         </Avatar>
         <span className="font-semibold text-lg text-foreground">@kovazzi</span>
