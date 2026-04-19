@@ -4,6 +4,8 @@
 import { useEffect } from 'react';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * Componente invisível que registra uma visita no Firestore.
@@ -19,16 +21,25 @@ export function VisitTracker() {
     if (!hasTracked && firestore) {
       const visitsRef = collection(firestore, 'visits');
       
-      addDoc(visitsRef, {
+      const visitData = {
         timestamp: serverTimestamp(),
         userAgent: navigator.userAgent,
         path: window.location.pathname,
-      }).then(() => {
-        sessionStorage.setItem('site_visit_tracked', 'true');
-      }).catch((err) => {
-        // Silenciosamente falha em caso de erro (ex: regras de segurança)
-        console.error("Erro ao registrar visita:", err);
-      });
+      };
+
+      addDoc(visitsRef, visitData)
+        .then(() => {
+          sessionStorage.setItem('site_visit_tracked', 'true');
+        })
+        .catch(async (err) => {
+          // Emite um erro contextual para o listener global em vez de usar console.error
+          const permissionError = new FirestorePermissionError({
+            path: 'visits',
+            operation: 'create',
+            requestResourceData: visitData,
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        });
     }
   }, [firestore]);
 
