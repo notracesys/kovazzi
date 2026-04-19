@@ -10,7 +10,8 @@ import {
   ResponsiveContainer, 
   XAxis, 
   YAxis,
-  CartesianGrid
+  CartesianGrid,
+  Cell
 } from 'recharts';
 import { 
   ChartContainer, 
@@ -19,8 +20,8 @@ import {
 } from '@/components/ui/chart';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
-import { Eye, TrendingUp } from 'lucide-react';
-import { format, subDays, isSameDay, startOfWeek, addDays } from 'date-fns';
+import { Eye, TrendingUp, Users } from 'lucide-react';
+import { format, isSameDay, startOfWeek, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const chartConfig = {
@@ -34,7 +35,6 @@ export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
   const firestore = useFirestore();
 
-  // Busca a coleção de visitas reais do Firestore
   const visitsQuery = useMemoFirebase(() => collection(firestore, 'visits'), [firestore]);
   const { data: visitsData, isLoading } = useCollection(visitsQuery);
 
@@ -42,19 +42,17 @@ export default function AdminDashboard() {
     setMounted(true);
   }, []);
 
-  // Processa os dados para o gráfico semanal
   const weeklyData = useMemo(() => {
     if (!visitsData) return [];
 
     const days = [];
     const today = new Date();
-    const start = startOfWeek(today, { weekStartsOn: 1 }); // Começa na Segunda
+    const start = startOfWeek(today, { weekStartsOn: 1 });
 
     for (let i = 0; i < 7; i++) {
       const currentDay = addDays(start, i);
       const count = visitsData.filter(visit => {
         if (!visit.timestamp) return false;
-        // Converte timestamp do Firestore para Date se necessário
         const visitDate = visit.timestamp.toDate ? visit.timestamp.toDate() : new Date(visit.timestamp);
         return isSameDay(visitDate, currentDay);
       }).length;
@@ -62,6 +60,7 @@ export default function AdminDashboard() {
       days.push({
         name: format(currentDay, 'EEE', { locale: ptBR }),
         visits: count,
+        isToday: isSameDay(currentDay, today)
       });
     }
     return days;
@@ -72,64 +71,80 @@ export default function AdminDashboard() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
-        <div className="flex flex-col gap-8 animate-in fade-in duration-700">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary">Painel de Controle</h1>
-            <p className="text-muted-foreground">Métricas reais de acesso ao site.</p>
+      <main className="flex-grow container mx-auto px-4 py-6 md:py-10">
+        <div className="flex flex-col gap-6 animate-in fade-in duration-700">
+          <div className="space-y-1">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">Painel de Controle</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Métricas reais de acesso ao site.</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
             {/* Card de Total de Visitas */}
-            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-1">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total de Visitas</CardTitle>
-                <Eye className="h-5 w-5 text-primary" />
+            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-1 shadow-xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 md:px-6">
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-widest">Total de Visitas</CardTitle>
+                <Eye className="h-4 w-4 md:h-5 md:w-5 text-primary" />
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-black text-primary">
-                  {isLoading ? '...' : (visitsData?.length || 0).toLocaleString()}
+              <CardContent className="px-4 md:px-6 pb-6">
+                <div className="text-3xl md:text-4xl font-black text-primary">
+                  {isLoading ? (
+                    <span className="animate-pulse opacity-50">...</span>
+                  ) : (
+                    (visitsData?.length || 0).toLocaleString('pt-BR')
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3 text-green-500" />
-                  Acessos únicos registrados
-                </p>
+                <div className="mt-2 flex items-center gap-1.5">
+                  <div className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Monitorando acessos reais</p>
+                </div>
               </CardContent>
             </Card>
 
             {/* Gráfico Semanal */}
-            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-lg">Tráfego Semanal</CardTitle>
-                <CardDescription>Visitas distribuídas pelos dias da semana atual.</CardDescription>
+            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-2 shadow-xl">
+              <CardHeader className="px-4 md:px-6">
+                <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  Tráfego Semanal
+                </CardTitle>
+                <CardDescription className="text-xs md:text-sm">Visitas distribuídas pelos dias da semana atual.</CardDescription>
               </CardHeader>
-              <CardContent className="h-[300px]">
+              <CardContent className="h-[250px] md:h-[300px] px-2 md:px-6">
                 <ChartContainer config={chartConfig} className="h-full w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={weeklyData}>
-                      <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis 
                         dataKey="name" 
-                        stroke="#888888" 
-                        fontSize={12} 
+                        stroke="#666" 
+                        fontSize={10} 
                         tickLine={false} 
                         axisLine={false} 
                         tickFormatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
                       />
                       <YAxis 
-                        stroke="#888888" 
-                        fontSize={12} 
+                        stroke="#666" 
+                        fontSize={10} 
                         tickLine={false} 
                         axisLine={false}
                         allowDecimals={false}
                       />
-                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartTooltip 
+                        content={<ChartTooltipContent />} 
+                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                      />
                       <Bar 
                         dataKey="visits" 
-                        fill="var(--color-visits)" 
                         radius={[4, 4, 0, 0]} 
-                        className="hover:opacity-80 transition-opacity"
-                      />
+                        barSize={30}
+                      >
+                        {weeklyData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={entry.isToday ? 'hsl(var(--primary))' : 'rgba(255, 204, 0, 0.3)'} 
+                          />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartContainer>
