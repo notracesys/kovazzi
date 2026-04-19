@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -47,7 +46,7 @@ export default function AdminDashboard() {
 
     const days = [];
     const today = new Date();
-    const start = startOfWeek(today, { weekStartsOn: 1 });
+    const start = startOfWeek(today, { weekStartsOn: 1 }); // Começa na Segunda
 
     for (let i = 0; i < 7; i++) {
       const currentDay = addDays(start, i);
@@ -57,8 +56,10 @@ export default function AdminDashboard() {
         return isSameDay(visitDate, currentDay);
       }).length;
 
+      // Usando 'EEEEEE' para pegar apenas 2 letras (Se, Te, Qu...) para caber melhor
       days.push({
-        name: format(currentDay, 'EEE', { locale: ptBR }),
+        name: format(currentDay, 'EEEEEE', { locale: ptBR }).replace('.', '').toUpperCase(),
+        fullName: format(currentDay, 'EEEE', { locale: ptBR }),
         visits: count,
         isToday: isSameDay(currentDay, today)
       });
@@ -109,18 +110,22 @@ export default function AdminDashboard() {
                 </CardTitle>
                 <CardDescription className="text-[10px] md:text-sm">Visitas distribuídas pelos dias da semana atual.</CardDescription>
               </CardHeader>
-              <CardContent className="h-[220px] md:h-[300px] px-1 md:px-6">
+              <CardContent className="h-[220px] md:h-[300px] px-0">
                 <ChartContainer config={chartConfig} className="h-full w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                    <BarChart 
+                      data={weeklyData} 
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
                       <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis 
                         dataKey="name" 
                         stroke="#666" 
-                        fontSize={9} 
+                        fontSize={10} 
                         tickLine={false} 
-                        axisLine={false} 
-                        tickFormatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+                        axisLine={false}
+                        interval={0} // FORÇA A EXIBIÇÃO DE TODOS OS DIAS
+                        tick={{ fill: '#888', fontWeight: 500 }}
                       />
                       <YAxis 
                         stroke="#666" 
@@ -136,7 +141,7 @@ export default function AdminDashboard() {
                       <Bar 
                         dataKey="visits" 
                         radius={[4, 4, 0, 0]} 
-                        barSize={20}
+                        barSize={24}
                       >
                         {weeklyData.map((entry, index) => (
                           <Cell 
