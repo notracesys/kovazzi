@@ -64,7 +64,7 @@ export default function ChatInterface() {
     const priorWarnings = searchParams.get('priorWarnings');
     const banDescription = searchParams.get('banDescription');
 
-    const initialMessageContent = `Olá Equipe Kovazzi.
+    const initialMessageContent = `Olá Equipe Zephyrus.
 Minha conta foi banida há: ${suspensionTime || 'Não informado'}.
 Usei software de terceiros: ${thirdPartySoftware || 'Não informado'}.
 O motivo do banimento foi: ${banReason || 'Não informado'}.
@@ -106,7 +106,7 @@ Descrição do ocorrido:
                 const teamResponse2: Message = {
                   id: 3,
                   sender: 'team',
-                  content: `🤔 Muitos banimentos acontecem sem análise humana detalhada.\nQuando o caso é apresentado da forma certa, a plataforma pode reavaliar a decisão.💡\n\nÉ exatamente nesse ponto que a Equipe Kovazzi atua. 💪`,
+                  content: `🤔 Muitos banimentos acontecem sem análise humana detalhada.\nQuando o caso é apresentado da forma certa, a plataforma pode reavaliar a decisão.💡\n\nÉ exatamente nesse ponto que a Equipe Zephyrus atua. 💪`,
                    type: 'text',
                 };
                 setMessages((prev) => [...prev, teamResponse2]);
@@ -119,7 +119,7 @@ Descrição do ocorrido:
                         const teamResponse3: Message = {
                             id: 4,
                             sender: 'team',
-                            content: 'Você deseja que a Equipe Kovazzi inicie a análise completa do seu caso? 🤔',
+                            content: 'Você deseja que a Equipe Zephyrus inicie a análise completa do seu caso? 🤔',
                             type: 'text',
                         };
                         setMessages((prev) => [...prev, teamResponse3]);
@@ -205,7 +205,7 @@ Descrição do ocorrido:
                                 const proofMessage: Message = {
                                     id: Date.now(),
                                     sender: 'team',
-                                    content: 'Várias pessoas chegaram até nós com o mesmo problema, achando que tinham perdido tudo.\nApós a análise e o processo feito pela Equipe Kovazzi, muitas conseguiram recuperar suas contas. ✨',
+                                    content: 'Várias pessoas chegaram até nós com o mesmo problema, achando que tinham perdido tudo.\nApós a análise e o processo feito pela Equipe Zephyrus, muitas conseguiram recuperar suas contas. ✨',
                                     type: 'text',
                                 };
                                 setMessages(prev => [...prev, proofMessage]);
@@ -344,11 +344,11 @@ Descrição do ocorrido:
           <div className="border-b bg-card">
             <div className="container mx-auto px-4 h-20 flex items-center gap-4">
                 <Avatar className="h-12 w-12 border-2 border-primary">
-                    <AvatarImage src="/equipe.png" alt="Equipe Kovazzi Logo" />
-                    <AvatarFallback>K</AvatarFallback>
+                    <AvatarImage src="/equipe.png" alt="Equipe Zephyrus Logo" />
+                    <AvatarFallback>Z</AvatarFallback>
                 </Avatar>
                 <div>
-                    <h2 className="font-bold text-lg">Equipe Kovazzi</h2>
+                    <h2 className="font-bold text-lg">Equipe Zephyrus</h2>
                     <div className="flex items-center gap-2">
                         <div className="relative flex h-2.5 w-2.5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
@@ -388,8 +388,8 @@ Descrição do ocorrido:
                             <div className="w-8">
                               {nextMessage?.sender !== 'team' && (
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src="/equipe.png" alt="Equipe Kovazzi Logo" />
-                                    <AvatarFallback>K</AvatarFallback>
+                                    <AvatarImage src="/equipe.png" alt="Equipe Zephyrus Logo" />
+                                    <AvatarFallback>Z</AvatarFallback>
                                 </Avatar>
                               )}
                             </div>
@@ -422,8 +422,8 @@ Descrição do ocorrido:
                   {isTyping && (
                        <div className="flex items-end gap-2 justify-start">
                           <Avatar className="h-8 w-8">
-                              <AvatarImage src="/equipe.png" alt="Equipe Kovazzi Logo" />
-                              <AvatarFallback>K</AvatarFallback>
+                              <AvatarImage src="/equipe.png" alt="Equipe Zephyrus Logo" />
+                              <AvatarFallback>Z</AvatarFallback>
                           </Avatar>
                           <div className="max-w-md rounded-lg p-2 bg-secondary">
                               <TypingIndicator />
