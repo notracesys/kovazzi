@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/chart';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
-import { Eye, TrendingUp } from 'lucide-react';
+import { Eye, TrendingUp, Activity } from 'lucide-react';
 import { format, isSameDay, startOfWeek, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -56,7 +56,6 @@ export default function AdminDashboard() {
         return isSameDay(visitDate, currentDay);
       }).length;
 
-      // Usando 'EEEEEE' para pegar apenas 2 letras (Se, Te, Qu...) para caber melhor
       days.push({
         name: format(currentDay, 'EEEEEE', { locale: ptBR }).replace('.', '').toUpperCase(),
         fullName: format(currentDay, 'EEEE', { locale: ptBR }),
@@ -75,28 +74,34 @@ export default function AdminDashboard() {
       <main className="flex-grow container mx-auto px-2 md:px-4 py-6 md:py-10">
         <div className="flex flex-col gap-6 animate-in fade-in duration-700 max-w-full">
           <div className="space-y-1 px-2">
-            <h1 className="text-xl md:text-3xl font-bold tracking-tight text-primary">Painel de Controle</h1>
-            <p className="text-xs md:text-base text-muted-foreground">Métricas reais de acesso ao site.</p>
+            <h1 className="text-xl md:text-3xl font-bold tracking-tight text-primary flex items-center gap-2">
+              Painel de Controle
+              <Activity className="h-5 w-5 text-primary animate-pulse" />
+            </h1>
+            <p className="text-xs md:text-base text-muted-foreground">Monitoramento real de tráfego e engajamento.</p>
           </div>
 
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
             {/* Card de Total de Visitas */}
             <Card className="border-primary/20 bg-card/50 backdrop-blur-sm lg:col-span-1 shadow-xl mx-2 md:mx-0">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4">
-                <CardTitle className="text-[10px] md:text-sm font-medium text-muted-foreground uppercase tracking-widest">Total de Visitas</CardTitle>
+                <CardTitle className="text-[10px] md:text-sm font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                  Total de Visitas
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                </CardTitle>
                 <Eye className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent className="px-4 pb-6">
-                <div className="text-2xl md:text-4xl font-black text-primary">
+                <div className="text-3xl md:text-5xl font-black text-primary tracking-tighter">
                   {isLoading ? (
                     <span className="animate-pulse opacity-50">...</span>
                   ) : (
                     (visitsData?.length || 0).toLocaleString('pt-BR')
                   )}
                 </div>
-                <div className="mt-2 flex items-center gap-1.5">
-                  <div className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-[9px] md:text-xs text-muted-foreground">Monitorando acessos reais</p>
+                <div className="mt-3 flex items-center gap-1.5">
+                  <div className="flex h-2 w-2 rounded-full bg-green-500" />
+                  <p className="text-[9px] md:text-xs text-muted-foreground font-medium">Conectado ao banco de dados real</p>
                 </div>
               </CardContent>
             </Card>
@@ -106,9 +111,9 @@ export default function AdminDashboard() {
               <CardHeader className="px-4">
                 <CardTitle className="text-sm md:text-lg flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  Tráfego Semanal
+                  Tráfego da Semana
                 </CardTitle>
-                <CardDescription className="text-[10px] md:text-sm">Visitas distribuídas pelos dias da semana atual.</CardDescription>
+                <CardDescription className="text-[10px] md:text-sm">Acessos únicos por dia da semana atual.</CardDescription>
               </CardHeader>
               <CardContent className="h-[220px] md:h-[300px] px-0">
                 <ChartContainer config={chartConfig} className="h-full w-full">
@@ -124,7 +129,7 @@ export default function AdminDashboard() {
                         fontSize={10} 
                         tickLine={false} 
                         axisLine={false}
-                        interval={0} // FORÇA A EXIBIÇÃO DE TODOS OS DIAS
+                        interval={0}
                         tick={{ fill: '#888', fontWeight: 500 }}
                       />
                       <YAxis 

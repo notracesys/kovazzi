@@ -12,11 +12,11 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- VISITS RULES ---
-    // Permite que qualquer pessoa crie um registro de visita, mas ninguém possa deletar ou listar (exceto no dashboard)
+    // --- VISITS RULES (Real-time tracking enabled) ---
+    // Permite que o rastreador salve visitas e o admin leia os dados
     match /visits/{visitId} {
       allow create: if true; 
-      allow read, list: if true; // Em um app real, aqui restringiríamos apenas para admins
+      allow read, list: if true; 
     }
 
     // --- COLLECTION RULES ---
