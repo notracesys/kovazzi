@@ -46,7 +46,6 @@ export default function PortalDoChefe() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  // Só tentamos criar a query se o usuário estiver logado
   const visitsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return collection(firestore, 'visits');
@@ -81,7 +80,8 @@ export default function PortalDoChefe() {
       }).length;
 
       days.push({
-        name: format(currentDay, 'EEEEEE', { locale: ptBR }).substring(0, 2).toUpperCase(),
+        // Formata para 3 letras (ex: SEG, TER, QUA) e remove pontos se houver
+        name: format(currentDay, 'EEE', { locale: ptBR }).replace('.', '').toUpperCase(),
         visits: count,
         isToday: isSameDay(currentDay, today)
       });
@@ -127,7 +127,6 @@ export default function PortalDoChefe() {
     );
   }
 
-  // Tela de Login se não estiver autenticado
   if (!user) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
@@ -198,7 +197,6 @@ export default function PortalDoChefe() {
           </div>
 
           <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-            {/* Card de Visitas */}
             <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Visitas (Real)</p>
@@ -212,7 +210,6 @@ export default function PortalDoChefe() {
               </CardContent>
             </Card>
 
-            {/* Card de Cliques no Checkout */}
             <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Intenção de Compra</p>
@@ -226,7 +223,6 @@ export default function PortalDoChefe() {
               </CardContent>
             </Card>
 
-            {/* Taxa de Conversão */}
             <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Conversão Checkout</p>
