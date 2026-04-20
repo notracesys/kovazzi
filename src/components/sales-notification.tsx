@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,7 +31,7 @@ export default function SalesNotification() {
   }, []);
 
   useEffect(() => {
-    if (!isMounted || pathname === '/chat' || pathname === '/creator-studio-xyz' || pathname === '/admin') {
+    if (!isMounted || pathname === '/chat' || pathname === '/creator-studio-xyz' || pathname === '/portaldochefe') {
       return;
     }
 
@@ -66,7 +67,7 @@ export default function SalesNotification() {
     return null;
   }
   
-  if (pathname === '/chat' || pathname === '/creator-studio-xyz' || pathname === '/admin') {
+  if (pathname === '/chat' || pathname === '/creator-studio-xyz' || pathname === '/portaldochefe') {
       return null;
   }
 
