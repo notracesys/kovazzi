@@ -21,12 +21,13 @@ import {
 import { useFirestore, useCollection, useMemoFirebase, useUser, useAuth } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { Eye, TrendingUp, Activity, ShoppingCart, Lock, LogIn, Loader2, LogOut } from 'lucide-react';
-import { format, isSameDay, startOfWeek, addDays } from 'date-fns';
+import { Eye, TrendingUp, Activity, ShoppingCart, Lock, LogIn, Loader2, LogOut, Calendar } from 'lucide-react';
+import { format, isSameDay, subDays, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 
 const chartConfig = {
@@ -41,6 +42,7 @@ export default function PortalDoChefe() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [timeRange, setTimeRange] = useState<'7d' | '30d'>('7d');
   
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
@@ -64,35 +66,39 @@ export default function PortalDoChefe() {
     setMounted(true);
   }, []);
 
-  const weeklyData = useMemo(() => {
+  const chartData = useMemo(() => {
     if (!visitsData) return [];
 
-    const days = [];
-    const today = new Date();
-    const start = startOfWeek(today, { weekStartsOn: 1 });
+    const daysCount = timeRange === '7d' ? 7 : 30;
+    const data = [];
+    const today = startOfDay(new Date());
 
-    for (let i = 0; i < 7; i++) {
-      const currentDay = addDays(start, i);
+    for (let i = daysCount - 1; i >= 0; i--) {
+      const currentDay = subDays(today, i);
       const count = visitsData.filter(visit => {
         if (!visit.timestamp) return false;
         const visitDate = visit.timestamp.toDate ? visit.timestamp.toDate() : new Date(visit.timestamp);
         return isSameDay(visitDate, currentDay);
       }).length;
 
-      // Garante 3 letras exatas: SE, TE, QU, QU, SE, SA, DO ou SEG, TER, QUA...
-      const dayName = format(currentDay, 'EEE', { locale: ptBR })
-        .replace('.', '')
-        .slice(0, 3)
-        .toUpperCase();
+      let name = '';
+      if (timeRange === '7d') {
+        name = format(currentDay, 'EEE', { locale: ptBR })
+          .replace('.', '')
+          .slice(0, 3)
+          .toUpperCase();
+      } else {
+        name = format(currentDay, 'dd/MM');
+      }
 
-      days.push({
-        name: dayName,
+      data.push({
+        name,
         visits: count,
         isToday: isSameDay(currentDay, today)
       });
     }
-    return days;
-  }, [visitsData]);
+    return data;
+  }, [visitsData, timeRange]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,16 +251,22 @@ export default function PortalDoChefe() {
           </div>
 
           <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl">
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-4 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
               <CardTitle className="text-sm md:text-lg flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                Tráfego Semanal
+                <Calendar className="h-4 w-4 text-primary" />
+                Tráfego por Período
               </CardTitle>
+              <Tabs defaultValue="7d" className="w-full md:w-auto" onValueChange={(v) => setTimeRange(v as any)}>
+                <TabsList className="grid w-full grid-cols-2 bg-background/50">
+                  <TabsTrigger value="7d" className="text-xs">7 dias</TabsTrigger>
+                  <TabsTrigger value="30d" className="text-xs">30 dias</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </CardHeader>
             <CardContent className="h-[250px] md:h-[350px] pt-4 px-0">
               <ChartContainer config={chartConfig} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                     <XAxis 
                       dataKey="name" 
@@ -262,7 +274,7 @@ export default function PortalDoChefe() {
                       fontSize={10} 
                       tickLine={false} 
                       axisLine={false} 
-                      interval={0}
+                      interval={timeRange === '30d' ? 4 : 0}
                     />
                     <YAxis 
                       stroke="#666" 
@@ -272,8 +284,8 @@ export default function PortalDoChefe() {
                       allowDecimals={false} 
                     />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="visits" radius={[4, 4, 0, 0]} barSize={32}>
-                      {weeklyData.map((entry, index) => (
+                    <Bar dataKey="visits" radius={[4, 4, 0, 0]} barSize={timeRange === '30d' ? 8 : 32}>
+                      {chartData.map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={entry.isToday ? 'hsl(var(--primary))' : 'rgba(255, 204, 0, 0.15)'} 
