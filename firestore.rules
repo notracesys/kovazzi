@@ -11,13 +11,15 @@ service cloud.firestore {
     // --- VISITS RULES ---
     match /visits/{visitId} {
       allow create: if true; 
-      allow read, list: if true; 
+      // Apenas usuários autenticados podem ver os dados de tráfego
+      allow read, list: if isSignedIn(); 
     }
 
     // --- CHECKOUT CLICKS RULES ---
     match /checkoutClicks/{clickId} {
       allow create: if true;
-      allow read, list: if true;
+      // Apenas usuários autenticados podem ver os dados de conversão
+      allow read, list: if isSignedIn();
     }
 
     // --- COLLECTION RULES (USUÁRIOS) ---

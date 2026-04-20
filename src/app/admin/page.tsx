@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Bar, 
   BarChart, 
@@ -18,11 +18,16 @@ import {
   ChartTooltip, 
   ChartTooltipContent 
 } from '@/components/ui/chart';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser, useAuth } from '@/firebase';
 import { collection } from 'firebase/firestore';
-import { Eye, TrendingUp, Activity, ShoppingCart } from 'lucide-react';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { Eye, TrendingUp, Activity, ShoppingCart, Lock, LogIn, Loader2, LogOut } from 'lucide-react';
 import { format, isSameDay, startOfWeek, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { toast } from '@/hooks/use-toast';
 
 const chartConfig = {
   visits: {
@@ -33,6 +38,12 @@ const chartConfig = {
 
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
   const visitsQuery = useMemoFirebase(() => collection(firestore, 'visits'), [firestore]);
@@ -61,7 +72,7 @@ export default function AdminDashboard() {
       }).length;
 
       days.push({
-        name: format(currentDay, 'EEEEEE', { locale: ptBR }).replace('.', '').toUpperCase(),
+        name: format(currentDay, 'EEEEEE', { locale: ptBR }).substring(0, 2).toUpperCase(),
         visits: count,
         isToday: isSameDay(currentDay, today)
       });
@@ -69,100 +80,194 @@ export default function AdminDashboard() {
     return days;
   }, [visitsData]);
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({
+        title: "Bem-vindo de volta!",
+        description: "Acesso autorizado ao painel administrativo.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Falha na autenticação",
+        description: "E-mail ou senha incorretos.",
+      });
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    toast({
+      title: "Sessão encerrada",
+      description: "Você saiu do painel administrativo.",
+    });
+  };
+
   if (!mounted) return null;
+
+  if (isUserLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Tela de Login se não estiver autenticado
+  if (!user) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <Header />
+        <main className="flex-grow flex items-center justify-center px-4">
+          <Card className="w-full max-w-md border-primary/20 bg-card/50 backdrop-blur-sm shadow-2xl">
+            <CardHeader className="text-center space-y-1">
+              <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-2">
+                <Lock className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle className="text-2xl font-bold tracking-tight">Área Restrita</CardTitle>
+              <p className="text-sm text-muted-foreground">Identifique-se para acessar as métricas.</p>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="admin@exemplo.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-background/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Senha</Label>
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="bg-background/50"
+                  />
+                </div>
+                <Button type="submit" className="w-full font-bold" disabled={isLoggingIn}>
+                  {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <LogIn className="h-4 w-4 mr-2" />}
+                  Entrar no Painel
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground overflow-x-hidden">
       <Header />
-      <main className="flex-grow container mx-auto px-2 md:px-4 py-6 md:py-10">
+      <main className="flex-grow container mx-auto px-4 md:px-6 py-6 md:py-10">
         <div className="flex flex-col gap-6 animate-in fade-in duration-700 max-w-full">
-          <div className="space-y-1 px-2">
-            <h1 className="text-xl md:text-3xl font-bold tracking-tight text-primary flex items-center gap-2">
-              Painel Real Time
-              <Activity className="h-5 w-5 text-primary animate-pulse" />
-            </h1>
-            <p className="text-xs md:text-base text-muted-foreground">Monitoramento de acessos e intenções de compra.</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-1">
+            <div className="space-y-1">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-primary flex items-center gap-2">
+                Painel Real Time
+                <Activity className="h-6 w-6 text-primary animate-pulse" />
+              </h1>
+              <p className="text-xs md:text-sm text-muted-foreground">Logado como: <span className="text-foreground font-medium">{user.email}</span></p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleLogout} className="w-fit border-primary/20 hover:bg-primary/10">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
           </div>
 
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
             {/* Card de Visitas */}
-            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl mx-2 md:mx-0">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4">
-                <CardTitle className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-widest">
-                  Total Visitas
-                </CardTitle>
+            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Visitas (Real)</p>
                 <Eye className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent className="px-4 pb-6">
-                <div className="text-2xl md:text-4xl font-black text-primary tracking-tighter">
-                  {visitsLoading ? <span className="animate-pulse">...</span> : (visitsData?.length || 0).toLocaleString('pt-BR')}
+              <CardContent>
+                <div className="text-3xl md:text-4xl font-black text-primary tracking-tighter">
+                  {visitsLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (visitsData?.length || 0).toLocaleString('pt-BR')}
                 </div>
-                <div className="mt-2 flex items-center gap-1">
-                  <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                  <p className="text-[9px] text-muted-foreground">Acessos totais ao site</p>
-                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">Acessos únicos registrados</p>
               </CardContent>
             </Card>
 
             {/* Card de Cliques no Checkout */}
-            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl mx-2 md:mx-0">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4">
-                <CardTitle className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-widest">
-                  Intenção de Compra
-                </CardTitle>
+            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Intenção de Compra</p>
                 <ShoppingCart className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent className="px-4 pb-6">
-                <div className="text-2xl md:text-4xl font-black text-primary tracking-tighter">
-                  {clicksLoading ? <span className="animate-pulse">...</span> : (clicksData?.length || 0).toLocaleString('pt-BR')}
+              <CardContent>
+                <div className="text-3xl md:text-4xl font-black text-primary tracking-tighter">
+                  {clicksLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (clicksData?.length || 0).toLocaleString('pt-BR')}
                 </div>
-                <div className="mt-2 flex items-center gap-1">
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                  <p className="text-[9px] text-muted-foreground">Cliques no botão da Eduzz</p>
-                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">Cliques no botão de checkout</p>
               </CardContent>
             </Card>
 
-            {/* Taxa de Conversão (Visitas -> Checkout) */}
-            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl mx-2 md:mx-0">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4">
-                <CardTitle className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-widest">
-                  Conversão Checkout
-                </CardTitle>
+            {/* Taxa de Conversão */}
+            <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Conversão Checkout</p>
                 <TrendingUp className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent className="px-4 pb-6">
-                <div className="text-2xl md:text-4xl font-black text-primary tracking-tighter">
+              <CardContent>
+                <div className="text-3xl md:text-4xl font-black text-primary tracking-tighter">
                   {(!visitsData?.length || !clicksData?.length) ? '0%' : 
                     `${((clicksData.length / visitsData.length) * 100).toFixed(1)}%`
                   }
                 </div>
-                <div className="mt-2 flex items-center gap-1">
-                  <div className="h-1.5 w-1.5 rounded-full bg-yellow-500" />
-                  <p className="text-[9px] text-muted-foreground">Visitas vs Cliques no Checkout</p>
-                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">Visitas vs Cliques no Botão</p>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl mx-2 md:mx-0">
-            <CardHeader className="px-4">
+          <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm md:text-lg flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
                 Tráfego Semanal
               </CardTitle>
             </CardHeader>
-            <CardContent className="h-[200px] md:h-[300px] px-0">
+            <CardContent className="h-[250px] md:h-[350px] pt-4 px-0">
               <ChartContainer config={chartConfig} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="name" stroke="#666" fontSize={10} tickLine={false} axisLine={false} interval={0} />
-                    <YAxis stroke="#666" fontSize={9} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="#666" 
+                      fontSize={10} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      interval={0}
+                    />
+                    <YAxis 
+                      stroke="#666" 
+                      fontSize={9} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      allowDecimals={false} 
+                    />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="visits" radius={[4, 4, 0, 0]} barSize={24}>
+                    <Bar dataKey="visits" radius={[4, 4, 0, 0]} barSize={32}>
                       {weeklyData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.isToday ? 'hsl(var(--primary))' : 'rgba(255, 204, 0, 0.2)'} />
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={entry.isToday ? 'hsl(var(--primary))' : 'rgba(255, 204, 0, 0.15)'} 
+                        />
                       ))}
                     </Bar>
                   </BarChart>
