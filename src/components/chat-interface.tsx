@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -17,7 +18,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 type Message = {
   id: number;
@@ -38,10 +40,9 @@ const TypingIndicator = () => (
   </div>
 );
 
-
 export default function ChatInterface() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const firestore = useFirestore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -54,71 +55,47 @@ export default function ChatInterface() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-
   useEffect(() => {
-    const suspensionTime = searchParams.get('suspensionTime');
-    const thirdPartySoftware = searchParams.get('thirdPartySoftware');
-    const banReason = searchParams.get('banReason');
-    const firstOffense = searchParams.get('firstOffense');
-    const hasMadePurchases = searchParams.get('hasMadePurchases');
-    const priorWarnings = searchParams.get('priorWarnings');
-    const banDescription = searchParams.get('banDescription');
-
     const initialMessageContent = `Olá Equipe Zephyrus.
-Minha conta foi banida há: ${suspensionTime || 'Não informado'}.
-Usei software de terceiros: ${thirdPartySoftware || 'Não informado'}.
-O motivo do banimento foi: ${banReason || 'Não informado'}.
-É minha primeira suspensão: ${firstOffense || 'Não informado'}.
-Já fiz compras na conta: ${hasMadePurchases || 'Não informado'}.
-Recebi avisos prévios: ${priorWarnings || 'Não informado'}.
+Minha conta foi banida há: ${searchParams.get('suspensionTime') || 'Não informado'}.
+Usei software de terceiros: ${searchParams.get('thirdPartySoftware') || 'Não informado'}.
+O motivo do banimento foi: ${searchParams.get('banReason') || 'Não informado'}.
+É minha primeira suspensão: ${searchParams.get('firstOffense') || 'Não informado'}.
+Já fiz compras na conta: ${searchParams.get('hasMadePurchases') || 'Não informado'}.
+Recebi avisos prévios: ${searchParams.get('priorWarnings') || 'Não informado'}.
 
 Descrição do ocorrido:
-"${banDescription || 'Nenhuma descrição fornecida.'}"
+"${searchParams.get('banDescription') || 'Nenhuma descrição fornecida.'}"
 `;
 
-    const userMessage: Message = {
-      id: 1,
-      sender: 'user',
-      content: initialMessageContent,
-      status: 'read',
-      type: 'text',
-    };
-
+    const userMessage: Message = { id: 1, sender: 'user', content: initialMessageContent, status: 'read', type: 'text' };
     setMessages([userMessage]);
 
-    const readingTimer = setTimeout(() => {
+    setTimeout(() => {
         setIsTyping(true);
-
-        const typingTimer = setTimeout(() => {
+        setTimeout(() => {
             const teamResponse: Message = {
-                id: 2,
-                sender: 'team',
+                id: 2, sender: 'team',
                 content: '👋 Olá! Recebemos suas informações. Após uma análise preliminar, identificamos que seu caso tem características de um banimento automático, o que significa que existem chances reais de recuperação. Nossa equipe pode preparar uma defesa técnica detalhada para você. 📄',
                 type: 'text',
             };
             setMessages((prev) => [...prev, teamResponse]);
             setIsTyping(false);
-
-            const readingTimer2 = setTimeout(() => {
+            setTimeout(() => {
               setIsTyping(true);
-
-              const typingTimer2 = setTimeout(() => {
+              setTimeout(() => {
                 const teamResponse2: Message = {
-                  id: 3,
-                  sender: 'team',
+                  id: 3, sender: 'team',
                   content: `🤔 Muitos banimentos acontecem sem análise humana detalhada.\nQuando o caso é apresentado da forma certa, a plataforma pode reavaliar a decisão.💡\n\nÉ exatamente nesse ponto que a Equipe Zephyrus atua. 💪`,
                    type: 'text',
                 };
                 setMessages((prev) => [...prev, teamResponse2]);
                 setIsTyping(false);
-
-                 const readingTimer3 = setTimeout(() => {
+                 setTimeout(() => {
                     setIsTyping(true);
-
-                    const typingTimer3 = setTimeout(() => {
+                    setTimeout(() => {
                         const teamResponse3: Message = {
-                            id: 4,
-                            sender: 'team',
+                            id: 4, sender: 'team',
                             content: 'Você deseja que a Equipe Zephyrus inicie a análise completa do seu caso? 🤔',
                             type: 'text',
                         };
@@ -126,44 +103,27 @@ Descrição do ocorrido:
                         setIsTyping(false);
                         setShowOptions(true);
                     }, 3000); 
-
-                    return () => clearTimeout(typingTimer3);
                 }, 6000); 
-                
-                return () => clearTimeout(readingTimer3);
-
-
               }, 3000);
-
-              return () => clearTimeout(typingTimer2);
             }, 6000);
-
-            return () => clearTimeout(readingTimer2);
-
         }, 3000); 
-
-        return () => clearTimeout(typingTimer);
     }, 6000); 
-
-    return () => clearTimeout(readingTimer);
   }, [searchParams]);
 
-  const MessageStatus = ({ status }: { status: Message['status'] }) => {
-    if (status === 'sent') return <Check className="h-4 w-4 text-muted-foreground" />;
-    if (status === 'delivered') return <CheckCheck className="h-4 w-4 text-muted-foreground" />;
-    if (status === 'read') return <CheckCheck className="h-4 w-4 text-blue-500" />;
-    return null;
-  }
+  const handleTrackCheckout = (url: string) => {
+    if (!firestore) return;
+    addDoc(collection(firestore, 'checkoutClicks'), {
+      timestamp: serverTimestamp(),
+      source: 'chat',
+      url: url
+    });
+  };
 
   const handleOptionClick = (option: 'sim' | 'nao') => {
-    const content = option === 'sim' 
-        ? 'Sim, quero tentar recuperar minha conta 👍' 
-        : 'Não, apenas estou me informando';
-    
     const userMessage: Message = {
         id: Date.now(),
         sender: 'user',
-        content,
+        content: option === 'sim' ? 'Sim, quero tentar recuperar minha conta 👍' : 'Não, apenas estou me informando',
         status: 'read',
         type: 'text',
     };
@@ -175,85 +135,36 @@ Descrição do ocorrido:
         setTimeout(() => {
             setIsTyping(true);
             setTimeout(() => {
-                const finalResponse: Message = {
-                    id: Date.now(),
-                    sender: 'team',
-                    content: 'Ótima escolha. ✅\n\nVocê está dando o passo que a maioria não dá: recorrer da forma correta. 🚀',
-                    type: 'text',
-                }
-                setMessages(prev => [...prev, finalResponse]);
+                setMessages(prev => [...prev, { id: Date.now(), sender: 'team', content: 'Ótima escolha. ✅\n\nVocê está dando o passo que a maioria não dá: recorrer da forma correta. 🚀', type: 'text' }]);
                 setIsTyping(false);
-                
                 setTimeout(() => {
                     setShowImportantNotice(true);
-                    
                     setTimeout(() => {
                         setIsTyping(true);
                         setTimeout(() => {
-                            const finalMessage: Message = {
-                                id: Date.now(),
-                                sender: 'team',
-                                content: 'Agora é o seguinte 👇\nSeu caso não é comum. Ele apresenta sinais claros de banimento automático: e esses são exatamente os casos que ainda valem a tentativa. ⚠️',
-                                type: 'text',
-                            };
-                            setMessages(prev => [...prev, finalMessage]);
+                            setMessages(prev => [...prev, { id: Date.now(), sender: 'team', content: 'Agora é o seguinte 👇\nSeu caso não é comum. Ele apresenta sinais claros de banimento automático: e esses são exatamente os casos que ainda valem a tentativa. ⚠️', type: 'text' }]);
                             setIsTyping(false);
-
                             setTimeout(() => {
                               setIsTyping(true);
                               setTimeout(() => {
-                                const proofMessage: Message = {
-                                    id: Date.now(),
-                                    sender: 'team',
-                                    content: 'Várias pessoas chegaram até nós com o mesmo problema, achando que tinham perdido tudo.\nApós a análise e o processo feito pela Equipe Zephyrus, muitas conseguiram recuperar suas contas. ✨',
-                                    type: 'text',
-                                };
-                                setMessages(prev => [...prev, proofMessage]);
+                                setMessages(prev => [...prev, { id: Date.now(), sender: 'team', content: 'Várias pessoas chegaram até nós com o mesmo problema, achando que tinham perdido tudo.\nApós a análise e o processo feito pela Equipe Zephyrus, muitas conseguiram recuperar suas contas. ✨', type: 'text' }]);
                                 setIsTyping(false);
-
                                 setTimeout(() => {
                                     setIsTyping(true);
                                     setTimeout(() => {
-                                        const feedbackMessage: Message = {
-                                            id: Date.now(),
-                                            sender: 'team',
-                                            content: 'Veja alguns feedbacks 👇',
-                                            type: 'text',
-                                        };
-                                        setMessages(prev => [...prev, feedbackMessage]);
+                                        setMessages(prev => [...prev, { id: Date.now(), sender: 'team', content: 'Veja alguns feedbacks 👇', type: 'text' }]);
                                         setIsTyping(false);
-                                        
                                         setTimeout(() => {
-                                            const feedbackImages: Message = {
-                                                id: Date.now(),
-                                                sender: 'team',
-                                                content: '', // Not used, but required by type
-                                                type: 'feedback',
-                                            };
-                                            setMessages(prev => [...prev, feedbackImages]);
-
+                                            setMessages(prev => [...prev, { id: Date.now(), sender: 'team', content: '', type: 'feedback' }]);
                                             setTimeout(() => {
                                                 setIsTyping(true);
                                                 setTimeout(() => {
-                                                    const finalHook: Message = {
-                                                        id: Date.now(),
-                                                        sender: 'team',
-                                                        content: 'A diferença não foi sorte.\nFoi recorrer do jeito certo, com quem sabe o que está fazendo. 💪',
-                                                        type: 'text',
-                                                    };
-                                                    setMessages(prev => [...prev, finalHook]);
+                                                    setMessages(prev => [...prev, { id: Date.now(), sender: 'team', content: 'A diferença não foi sorte.\nFoi recorrer do jeito certo, com quem sabe o que está fazendo. 💪', type: 'text' }]);
                                                     setIsTyping(false);
-
                                                     setTimeout(() => {
                                                         setIsTyping(true);
                                                         setTimeout(() => {
-                                                            const urgencyMessage: Message = {
-                                                                id: Date.now(),
-                                                                sender: 'team',
-                                                                content: 'Se você quer tentar recuperar sua conta enquanto ainda existe chance, esse é o momento. ⏳',
-                                                                type: 'text',
-                                                            };
-                                                            setMessages(prev => [...prev, urgencyMessage]);
+                                                            setMessages(prev => [...prev, { id: Date.now(), sender: 'team', content: 'Se você quer tentar recuperar sua conta enquanto ainda existe chance, esse é o momento. ⏳', type: 'text' }]);
                                                             setIsTyping(false);
                                                             setShowPurchaseButton(true);
                                                         }, 3000);
@@ -261,12 +172,10 @@ Descrição do ocorrido:
                                                 }, 3000)
                                             }, 6000)
                                         }, 3000);
-
                                     }, 3000)
                                 }, 6000)
                               }, 3000);
                             }, 6000);
-
                         }, 3000);
                     }, 6000);
                 }, 2000);
@@ -276,37 +185,17 @@ Descrição do ocorrido:
         setTimeout(() => {
             setIsTyping(true);
             setTimeout(() => {
-                const response1: Message = {
-                    id: Date.now(),
-                    sender: 'team',
-                    content: 'Você tem certeza? Essa pode ser uma decisão irreversível. É crucial que você entenda uma coisa: banimentos automáticos são como uma sentença de culpa.',
-                    type: 'text',
-                };
-                setMessages(prev => [...prev, response1]);
+                setMessages(prev => [...prev, { id: Date.now(), sender: 'team', content: 'Você tem certeza? Essa pode ser uma decisão irreversível. É crucial que você entenda uma coisa: banimentos automáticos são como uma sentença de culpa.', type: 'text' }]);
                 setIsTyping(false);
-
                 setTimeout(() => {
                     setIsTyping(true);
                     setTimeout(() => {
-                        const response2: Message = {
-                            id: Date.now() + 1,
-                            sender: 'team',
-                            content: 'Quando você NÃO RECORRE, o sistema entende que você está ACEITANDO A PUNIÇÃO. Ele marca seu caso como "resolvido", e suas chances de recuperação despencam para quase ZERO.',
-                            type: 'text',
-                        };
-                        setMessages(prev => [...prev, response2]);
+                        setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'team', content: 'Quando você NÃO RECORRE, o sistema entende que você está ACEITANDO A PUNIÇÃO. Ele marca seu caso como "resolvido", e suas chances de recuperação despencam para quase ZERO.', type: 'text' }]);
                         setIsTyping(false);
-
                         setTimeout(() => {
                             setIsTyping(true);
                             setTimeout(() => {
-                                const response3: Message = {
-                                    id: Date.now() + 2,
-                                    sender: 'team',
-                                    content: 'Não agir é a pior escolha. O tempo corre contra você. Esta é sua última chance real.',
-                                    type: 'text',
-                                };
-                                setMessages(prev => [...prev, response3]);
+                                setMessages(prev => [...prev, { id: Date.now() + 2, sender: 'team', content: 'Não agir é a pior escolha. O tempo corre contra você. Esta é sua última chance real.', type: 'text' }]);
                                 setIsTyping(false);
                                 setShowFinalOptions(true);
                             }, 3000);
@@ -318,44 +207,25 @@ Descrição do ocorrido:
     }
   }
 
-
   return (
     <>
       <AlertDialog open={showImportantNotice} onOpenChange={setShowImportantNotice}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="text-destructive" />
-              Importante:
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Em casos de banimento automático, o tempo é um fator decisivo. Quanto antes o processo é iniciado, maiores são as chances de sucesso.
-            </AlertDialogDescription>
+            <AlertDialogTitle className="flex items-center gap-2"><AlertTriangle className="text-destructive" /> Importante:</AlertDialogTitle>
+            <AlertDialogDescription>Em casos de banimento automático, o tempo é um fator decisivo. Quanto antes o processo é iniciado, maiores são as chances de sucesso.</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowImportantNotice(false)} className="bg-primary hover:bg-primary/90">
-              Fechar
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          <AlertDialogFooter><AlertDialogAction onClick={() => setShowImportantNotice(false)} className="bg-primary hover:bg-primary/90">Fechar</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <div className="flex flex-col h-[calc(100vh-4rem)]">
           <div className="border-b bg-card">
             <div className="container mx-auto px-4 h-20 flex items-center gap-4">
-                <Avatar className="h-12 w-12 border-2 border-primary">
-                    <AvatarImage src="/equipe.png" alt="Equipe Zephyrus Logo" />
-                    <AvatarFallback>Z</AvatarFallback>
-                </Avatar>
+                <Avatar className="h-12 w-12 border-2 border-primary"><AvatarImage src="/equipe.png" /><AvatarFallback>Z</AvatarFallback></Avatar>
                 <div>
                     <h2 className="font-bold text-lg">Equipe Zephyrus</h2>
-                    <div className="flex items-center gap-2">
-                        <div className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">Online</p>
-                    </div>
+                    <div className="flex items-center gap-2"><div className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span></div><p className="text-sm text-muted-foreground">Online</p></div>
                 </div>
             </div>
           </div>
@@ -366,8 +236,8 @@ Descrição do ocorrido:
                       if (msg.type === 'feedback') {
                         return (
                             <div key={msg.id} className="ml-10 pt-2 flex flex-col items-start space-y-4 animate-in fade-in-50 duration-500">
-                                <Image src="/feedback1.jpg" alt="Feedback de cliente 1" width={300} height={600} className="rounded-lg object-contain shadow-md" />
-                                <Image src="/feedback2.jpg" alt="Feedback de cliente 2" width={300} height={600} className="rounded-lg object-contain shadow-md" />
+                                <Image src="/feedback1.jpg" alt="Feedback 1" width={300} height={600} className="rounded-lg shadow-md" />
+                                <Image src="/feedback2.jpg" alt="Feedback 2" width={300} height={600} className="rounded-lg shadow-md" />
                             </div>
                         )
                       }
@@ -377,116 +247,22 @@ Descrição do ocorrido:
                       const nextMessage = messages[index + 1];
 
                       return (
-                      <div
-                          key={msg.id}
-                          className={cn(
-                          'flex items-end gap-2',
-                          isUser ? 'justify-end' : 'justify-start'
-                          )}
-                      >
-                          {isTeam && (
-                            <div className="w-8">
-                              {nextMessage?.sender !== 'team' && (
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src="/equipe.png" alt="Equipe Zephyrus Logo" />
-                                    <AvatarFallback>Z</AvatarFallback>
-                                </Avatar>
-                              )}
-                            </div>
-                          )}
-                          <div
-                              className={cn(
-                                'relative p-3 max-w-[85%] md:max-w-lg shadow-md',
-                                // Base styles
-                                isUser ? 'bg-primary text-primary-foreground rounded-t-xl rounded-bl-xl' : 'bg-secondary text-secondary-foreground rounded-t-xl rounded-br-xl',
-                                // Grouping styles for consecutive messages
-                                (isUser && prevMessage?.sender === 'user') && 'rounded-tr-none',
-                                (isUser && nextMessage?.sender === 'user') && 'rounded-bl-none',
-                                (isTeam && prevMessage?.sender === 'team') && 'rounded-tl-none',
-                                (isTeam && nextMessage?.sender === 'team') && 'rounded-br-none',
-                                // Tail pseudo-elements for the last message in a block
-                                (isTeam && nextMessage?.sender !== 'team') && 'before:content-[""] before:absolute before:h-3 before:w-3 before:bg-secondary before:bottom-0 before:left-[-6px] before:rotate-45',
-                                (isUser && nextMessage?.sender !== 'user') && 'after:content-[""] after:absolute after:h-3 after:w-3 after:bg-primary after:bottom-0 after:right-[-6px] after:rotate-45'
-                              )}
-                              >
+                      <div key={msg.id} className={cn('flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
+                          {isTeam && (<div className="w-8">{nextMessage?.sender !== 'team' && (<Avatar className="h-8 w-8"><AvatarImage src="/equipe.png" /><AvatarFallback>Z</AvatarFallback></Avatar>)}</div>)}
+                          <div className={cn('relative p-3 max-w-[85%] md:max-w-lg shadow-md', isUser ? 'bg-primary text-primary-foreground rounded-t-xl rounded-bl-xl' : 'bg-secondary text-secondary-foreground rounded-t-xl rounded-br-xl', (isUser && prevMessage?.sender === 'user') && 'rounded-tr-none', (isUser && nextMessage?.sender === 'user') && 'rounded-bl-none', (isTeam && prevMessage?.sender === 'team') && 'rounded-tl-none', (isTeam && nextMessage?.sender === 'team') && 'rounded-br-none')}>
                               <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-                              {isUser && (
-                                <div className="flex justify-end items-center gap-1 mt-1">
-                                    <MessageStatus status={msg.status} />
-                                </div>
-                              )}
+                              {isUser && (<div className="flex justify-end items-center gap-1 mt-1"><CheckCheck className={cn("h-4 w-4", msg.status === 'read' ? "text-blue-500" : "text-muted-foreground")} /></div>)}
                           </div>
                       </div>
                   )})}
-                  
-                  {isTyping && (
-                       <div className="flex items-end gap-2 justify-start">
-                          <Avatar className="h-8 w-8">
-                              <AvatarImage src="/equipe.png" alt="Equipe Zephyrus Logo" />
-                              <AvatarFallback>Z</AvatarFallback>
-                          </Avatar>
-                          <div className="max-w-md rounded-lg p-2 bg-secondary">
-                              <TypingIndicator />
-                          </div>
-                      </div>
-                  )}
+                  {isTyping && (<div className="flex items-end gap-2 justify-start"><Avatar className="h-8 w-8"><AvatarImage src="/equipe.png" /><AvatarFallback>Z</AvatarFallback></Avatar><div className="max-w-md rounded-lg p-2 bg-secondary"><TypingIndicator /></div></div>)}
                    <div ref={chatEndRef} />
               </div>
           </div>
           <div className="bg-card border-t p-4">
-              {showOptions && (
-                  <div className="flex flex-col sm:flex-row gap-2 max-w-4xl mx-auto animate-in fade-in-50 duration-500">
-                       <Button 
-                          onClick={() => handleOptionClick('sim')}
-                          className="flex-1 font-bold"
-                       >
-                          Sim, quero tentar recuperar minha conta 👍
-                      </Button>
-                      <Button 
-                          onClick={() => handleOptionClick('nao')}
-                          variant="secondary"
-                          className="flex-1 font-semibold"
-                      >
-                         Não, apenas estou me informando
-                      </Button>
-                  </div>
-              )}
-              {showPurchaseButton && (
-                  <div className="flex justify-center max-w-4xl mx-auto animate-in fade-in-50 duration-500">
-                      <Button
-                          asChild
-                          size="lg"
-                          className="w-full sm:w-auto font-bold relative overflow-hidden
-                                     before:absolute before:inset-0
-                                     before:-translate-x-full
-                                     before:animate-shine
-                                     before:bg-gradient-to-r
-                                     before:from-transparent before:via-white/50 before:to-transparent"
-                      >
-                          <Link href="https://chk.eduzz.com/60EEGON303" target="_blank">
-                            Quero Recuperar Minha Conta
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                          </Link>
-                      </Button>
-                  </div>
-              )}
-               {showFinalOptions && (
-                  <div className="flex flex-col sm:flex-row gap-2 max-w-4xl mx-auto animate-in fade-in-50 duration-500">
-                       <Button 
-                          onClick={() => handleOptionClick('sim')}
-                          className="font-bold flex-1"
-                       >
-                            Me Arrependi, quero recuperar!
-                           <ArrowRight className="ml-2 h-5 w-5" />
-                       </Button>
-                        <Button asChild variant="outline" className="flex-1">
-                            <Link href="/">
-                                <Home className="mr-2 h-4 w-4" />
-                                Desistir e Perder a Conta
-                            </Link>
-                        </Button>
-                  </div>
-              )}
+              {showOptions && (<div className="flex flex-col sm:flex-row gap-2 max-w-4xl mx-auto animate-in fade-in-50 duration-500"><Button onClick={() => handleOptionClick('sim')} className="flex-1 font-bold">Sim, quero tentar recuperar minha conta 👍</Button><Button onClick={() => handleOptionClick('nao')} variant="secondary" className="flex-1 font-semibold">Não, apenas estou me informando</Button></div>)}
+              {showPurchaseButton && (<div className="flex justify-center max-w-4xl mx-auto animate-in fade-in-50 duration-500"><Button asChild size="lg" onClick={() => handleTrackCheckout('https://chk.eduzz.com/60EEGON303')} className="w-full sm:w-auto font-bold animate-shine bg-primary text-primary-foreground"><Link href="https://chk.eduzz.com/60EEGON303" target="_blank">Quero Recuperar Minha Conta <ArrowRight className="ml-2 h-5 w-5" /></Link></Button></div>)}
+               {showFinalOptions && (<div className="flex flex-col sm:flex-row gap-2 max-w-4xl mx-auto animate-in fade-in-50 duration-500"><Button onClick={() => handleOptionClick('sim')} className="font-bold flex-1">Me Arrependi, quero recuperar! <ArrowRight className="ml-2 h-5 w-5" /></Button><Button asChild variant="outline" className="flex-1"><Link href="/"><Home className="mr-2 h-4 w-4" /> Desistir e Perder a Conta</Link></Button></div>)}
           </div>
       </div>
     </>

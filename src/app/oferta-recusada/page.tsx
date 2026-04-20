@@ -1,3 +1,4 @@
+
 'use client';
 
 import Header from '@/components/header';
@@ -5,8 +6,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Home, AlertTriangle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function OfertaRecusadaPage() {
+  const firestore = useFirestore();
+
+  const handleTrackCheckout = (url: string) => {
+    if (!firestore) return;
+    addDoc(collection(firestore, 'checkoutClicks'), {
+      timestamp: serverTimestamp(),
+      source: 'oferta-recusada',
+      url: url
+    });
+  };
 
   return (
     <div className="flex min-h-full flex-col">
@@ -19,17 +32,11 @@ export default function OfertaRecusadaPage() {
                     <CardTitle className="text-3xl font-headline">Você tem certeza?</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center space-y-6 px-6 pb-8">
-                    <p className="text-base text-muted-foreground">
-                        Você está prestes a tomar uma decisão que pode ser irreversível. É crucial que você entenda uma coisa: banimentos automáticos são como uma sentença de culpa.
-                    </p>
-                    <p className="text-foreground text-base leading-relaxed">
-                        Quando você <span className="font-bold text-destructive">NÃO RECORRE</span>, o sistema entende que você está <span className="font-bold text-destructive">ACEITANDO A PUNIÇÃO</span>. Ele marca seu caso como "resolvido", e suas chances de recuperação despencam para quase <span className="font-bold">ZERO</span>.
-                    </p>
-                    <p className="font-bold text-lg text-primary animate-pulse-badge">
-                        Não agir é a pior escolha. O tempo corre contra você.
-                    </p>
+                    <p className="text-base text-muted-foreground">Você está prestes a tomar uma decisão que pode ser irreversível. Banimentos automáticos são como uma sentença de culpa.</p>
+                    <p className="text-foreground text-base leading-relaxed">Quando você <span className="font-bold text-destructive">NÃO RECORRE</span>, o sistema entende que você está <span className="font-bold text-destructive">ACEITANDO A PUNIÇÃO</span>.</p>
+                    <p className="font-bold text-lg text-primary animate-pulse">Não agir é a pior escolha. O tempo corre contra você.</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                        <Button asChild className="font-bold">
+                        <Button asChild className="font-bold" onClick={() => handleTrackCheckout('https://chk.eduzz.com/60EEGON303')}>
                            <Link href="https://chk.eduzz.com/60EEGON303" target="_blank">
                                 Me Arrependi, quero recuperar!
                                <ArrowRight className="ml-2 h-5 w-5" />

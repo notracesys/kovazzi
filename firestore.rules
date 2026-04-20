@@ -8,50 +8,39 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    // --- VISITS RULES (Real-time tracking enabled) ---
-    // Permite que o rastreador salve visitas e o admin leia os dados
+    // --- VISITS RULES ---
     match /visits/{visitId} {
       allow create: if true; 
       allow read, list: if true; 
     }
 
-    // --- COLLECTION RULES ---
+    // --- CHECKOUT CLICKS RULES ---
+    match /checkoutClicks/{clickId} {
+      allow create: if true;
+      allow read, list: if true;
+    }
+
+    // --- COLLECTION RULES (USUÁRIOS) ---
     match /users/{userId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update, delete: if isOwner(userId);
+      allow get, list, create, update, delete: if isSignedIn() && request.auth.uid == userId;
 
       match /sessions/{sessionId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId);
-        allow update, delete: if isOwner(userId);
+        allow get, list, create, update, delete: if isSignedIn() && request.auth.uid == userId;
 
         match /quizResponses/{quizResponseId} {
-          allow get, list: if isOwner(userId);
-          allow create: if isOwner(userId);
-          allow update, delete: if isOwner(userId);
+          allow get, list, create, update, delete: if isSignedIn() && request.auth.uid == userId;
         }
 
         match /freeFireAccounts/{freeFireAccountId} {
-          allow get, list: if isOwner(userId);
-          allow create: if isOwner(userId);
-          allow update, delete: if isOwner(userId);
+          allow get, list, create, update, delete: if isSignedIn() && request.auth.uid == userId;
         }
 
         match /analysisResults/{analysisResultId} {
-          allow get, list: if isOwner(userId);
-          allow create: if isOwner(userId);
-          allow update, delete: if isOwner(userId);
+          allow get, list, create, update, delete: if isSignedIn() && request.auth.uid == userId;
         }
 
         match /servicePurchases/{servicePurchaseId} {
-          allow get, list: if isOwner(userId);
-          allow create: if isOwner(userId);
-          allow update, delete: if isOwner(userId);
+          allow get, list, create, update, delete: if isSignedIn() && request.auth.uid == userId;
         }
       }
     }
