@@ -79,9 +79,14 @@ export default function PortalDoChefe() {
         return isSameDay(visitDate, currentDay);
       }).length;
 
+      // Garante 3 letras exatas: SE, TE, QU, QU, SE, SA, DO ou SEG, TER, QUA...
+      const dayName = format(currentDay, 'EEE', { locale: ptBR })
+        .replace('.', '')
+        .slice(0, 3)
+        .toUpperCase();
+
       days.push({
-        // Formata para 3 letras (ex: SEG, TER, QUA) e remove pontos se houver
-        name: format(currentDay, 'EEE', { locale: ptBR }).replace('.', '').toUpperCase(),
+        name: dayName,
         visits: count,
         isToday: isSameDay(currentDay, today)
       });
