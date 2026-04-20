@@ -46,10 +46,19 @@ export default function AdminDashboard() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const visitsQuery = useMemoFirebase(() => collection(firestore, 'visits'), [firestore]);
+  // Só tentamos criar a query se o usuário estiver logado
+  const visitsQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, 'visits');
+  }, [firestore, user]);
+  
   const { data: visitsData, isLoading: visitsLoading } = useCollection(visitsQuery);
 
-  const clicksQuery = useMemoFirebase(() => collection(firestore, 'checkoutClicks'), [firestore]);
+  const clicksQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, 'checkoutClicks');
+  }, [firestore, user]);
+  
   const { data: clicksData, isLoading: clicksLoading } = useCollection(clicksQuery);
 
   useEffect(() => {
